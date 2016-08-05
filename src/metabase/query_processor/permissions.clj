@@ -5,7 +5,7 @@
             (metabase [db :as db]
                       [util :as u])))
 
-(defn- user-has-native-query-write-access?
+#_(defn- user-has-native-query-write-access?
   "Does User with USER-ID have appropriate permissions to *edit* or *delete* a *native* query against database with DATABASE-ID?
    (Users can always *run* existing native queries.)"
   [user-id database-id]
