@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from "react";
 
-import { Route, IndexRedirect, Redirect } from 'react-router';
+import { Route, IndexRoute, Redirect, IndexRedirect } from 'react-router';
 import { routerActions } from 'react-router-redux';
 import { UserAuthWrapper } from 'redux-auth-wrapper';
 
@@ -37,7 +37,6 @@ import SegmentApp from "metabase/admin/datamodel/containers/SegmentApp.jsx";
 import RevisionHistoryApp from "metabase/admin/datamodel/containers/RevisionHistoryApp.jsx";
 import AdminPeopleApp from "metabase/admin/people/containers/AdminPeopleApp.jsx";
 import SettingsEditorApp from "metabase/admin/settings/containers/SettingsEditorApp.jsx";
-import AdminPermissionsApp from "metabase/admin/permissions/containers/AdminPermissionsApp.jsx";
 
 import NotFound from "metabase/components/NotFound.jsx";
 import Unauthorized from "metabase/components/Unauthorized.jsx";
@@ -48,6 +47,8 @@ import ReferenceEntityList from "metabase/reference/containers/ReferenceEntityLi
 import ReferenceFieldsList from "metabase/reference/containers/ReferenceFieldsList.jsx";
 import ReferenceRevisionsList from "metabase/reference/containers/ReferenceRevisionsList.jsx";
 import ReferenceGettingStartedGuide from "metabase/reference/containers/ReferenceGettingStartedGuide.jsx";
+
+import adminPermissionsRoutes from "metabase/admin/permissions/routes.jsx";
 
 const MetabaseIsSetup = UserAuthWrapper({
     predicate: authData => !authData.hasSetupToken,
@@ -189,10 +190,7 @@ export const getRoutes = (store) =>
                 <Route path="settings" component={SettingsEditorApp} />
                 <Route path="settings/:section" component={SettingsEditorApp} />
 
-                <Route path="permissions">
-                    <IndexRedirect to="groups" />
-                    <Route path=":section" component={AdminPermissionsApp} />
-                </Route>
+                {adminPermissionsRoutes}
             </Route>
 
             {/* MISC */}
