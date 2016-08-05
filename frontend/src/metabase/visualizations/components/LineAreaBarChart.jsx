@@ -124,10 +124,10 @@ export default class LineAreaBarChart extends Component {
                         cols: rowIndexes.map(i => s.data.cols[i])
                     }
                 }));
-            } else if (metrics.length > 1) {
+            } else {
                 const dimensionIndex = dimensionIndexes[0];
 
-                nextState.isMultiseries = true;
+                nextState.isMultiseries = metrics.length > 1;
                 nextState.series = metricIndexes.map(metricIndex => {
                     const col = cols[metricIndex];
                     return {
@@ -239,6 +239,7 @@ export default class LineAreaBarChart extends Component {
                 <CardRenderer
                     {...this.props}
                     chartType={this.getChartType()}
+                    series={series}
                     settings={settings}
                     className="flex-full"
                     renderer={lineAreaBarRenderer}

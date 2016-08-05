@@ -1,8 +1,3 @@
-import { createSelector } from 'reselect';
+// import { createSelector } from 'reselect';
 
-export const adminPermissionsSelectors = createSelector(
-    [state => state.permissions.groups],
-    (groups) => ({groups})
-);
-
-console.log('adminPermissionsSelectors', adminPermissionsSelectors); // NOCOMMIT
+export const getGroups = state => state.permissions.groups;
