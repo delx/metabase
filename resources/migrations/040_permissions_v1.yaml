@@ -17,7 +17,7 @@ databaseChangeLog:
               # TODO - it would be nice to make this a case-insensitive unique constraint / index?
               - column:
                   name: name
-                  type: varchar(256)
+                  type: varchar(255)
                   constraints:
                     nullable: false
                     unique: true
@@ -172,7 +172,7 @@ databaseChangeLog:
                     foreignKeyName: fk_schema_permissions_database_id
               - column:
                   name: schema
-                  type: varchar(256)
+                  type: varchar(255)
                   constraints:
                     nullable: false
                     # TODO - Is there an easy way to add a constraint to make sure this a valid schema for the given database?
@@ -260,8 +260,20 @@ databaseChangeLog:
                 name: group_id
               column:
                 name: table_id
-        ############################################################ Add indexes for table db_id + schema ############################################################
-        # This is for doing things like getting all the tables that belong to a given schema
+        ############################################################ Tweaks to metabase_table ############################################################
+        # Modify the length of metabase_table.schema from 256 -> 254
+        # It turns out MySQL InnoDB indecies have to be 767 bytes or less (at least for older versions of MySQL)
+        # and 'utf8' text columns can use up to 3 bytes per character in MySQL -- see http://stackoverflow.com/a/22515986/1198455
+        # So 256 * 3 = 768 bytes (too large to index / add unique constraints)
+        # Drop this to 254; 254 * 3 = 762, which should give us room to index it along with a 4-byte integer as well if need be
+        # Hoping this doesn't break anyone's existing databases. Hopefully there aren't any schemas that are 255 or 256 bytes long out there; any longer
+        # and it would have already broke; any shorter and there's not problem.
+        # Anyway, better to break it now than to leave it as-is and have and break permissions where the columns have to be 254 characters wide
+        - modifyDataType:
+            tableName: metabase_table
+            columnName: schema
+            newDataType: varchar(254)
+        # Add index: this is for doing things like getting all the tables that belong to a given schema
         - createIndex:
             tableName: metabase_table
             indexName: idx_metabase_table_db_id_schema

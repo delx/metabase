@@ -27,25 +27,25 @@ const LeftNavPane = ({ children }) =>
 const Groups = ({ groups }) =>
     <ul>
         {groups && groups.map((group, index) =>
-            <Group group={group} index={index} />
+            <Group key={group.id} group={group} index={index} />
         )}
     </ul>
 
-const Group = ({ group, index }) => {
+const Group = ({ group, index, showGroupDetail }) => {
     console.log('renderGroup(', group, ",", index, ')'); // NOCOMMIT
 
     const COLORS = ['bg-error', 'bg-purple', 'bg-brand', 'bg-gold', 'bg-green'],
           color  = COLORS[(index % COLORS.length)]
 
     return (
-        <div key={group.id} className="my4">
+        <Link to={"/admin/permissions/groups/" + group.id} className="block my4 no-decoration">
             <span className="text-white inline-block">
                 <UserAvatar background={color} user={{first_name: group.name}} />
             </span>
             <span className="ml2 text-bold">
                 {group.name}
             </span>
-         </div>
+         </Link>
     );
 }
 
@@ -59,7 +59,7 @@ const PermissionsTitle = () =>
         </div>
     </div>
 
-const AdminPermissions = ({ activeSection, groups }) =>
+const AdminPermissions = ({ activeSection, groups, showGroupDetail }) =>
     <div className="flex flex-full p4">
         <div className="MetadataEditor flex-column full-height">
             <PermissionsTitle />
@@ -70,7 +70,7 @@ const AdminPermissions = ({ activeSection, groups }) =>
         </div>
         <div className="flex-column m4">
             { activeSection === "groups" ?
-                <Groups groups={groups} />
+                <Groups groups={groups} showGroupDetail={showGroupDetail} />
             : activeSection === "data" ?
                 <Data />
             : null }
