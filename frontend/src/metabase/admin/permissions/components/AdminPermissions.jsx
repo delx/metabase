@@ -79,8 +79,12 @@ export default class AdminPermissions extends Component {
         const COLORS = ['bg-error', 'bg-purple', 'bg-brand', 'bg-gold', 'bg-green'],
               color  = COLORS[(index % COLORS.length)]
 
+        function showGroupDetail() {
+            console.log('Show group detail:', group.id);
+        }
+
         return (
-            <div key={group.id} className="my4">
+            <div key={group.id} className="my4 cursor-pointer" onClick={showGroupDetail}>
                 <span className="text-white inline-block">
                     <UserAvatar background={color} user={{first_name: group.name}} />
                 </span>
