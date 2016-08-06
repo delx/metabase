@@ -26,7 +26,7 @@ const Group = ({ group, index, showGroupDetail }) => {
                 </Link>
             </td>
             <td>
-                3
+                {group.members}
             </td>
             <td>
                 ...
