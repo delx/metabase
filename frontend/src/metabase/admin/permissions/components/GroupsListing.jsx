@@ -26,8 +26,10 @@ const Group = ({ group, index, showGroupDetail }) => {
             <td>
                 {group.members}
             </td>
-            <td>
-                ...
+            <td className="cursor-pointer" onClick={alert.bind(null, 'TODO: Show the edit group modal!')}>
+                <h1>
+                    ...
+                </h1>
             </td>
         </tr>
     );
@@ -35,7 +37,9 @@ const Group = ({ group, index, showGroupDetail }) => {
 
 function GroupsListing({ location: { pathname }, groups }) {
     return (
-        <Permissions leftNavPane={<TopLevelLeftNavPane currentPath={pathname} />}>
+        <Permissions leftNavPane={<TopLevelLeftNavPane currentPath={pathname} />}
+                     rightTitleButtonTitle="Create a group"
+                     rightTitleButtonLink="/admin/permissions/groups/create">
             <AdminContentTable columnTitles={["Group name", "Members"]} >
                 {groups && groups.map((group, index) =>
                     <Group key={group.id} group={group} index={index} />
