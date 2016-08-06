@@ -3,7 +3,7 @@ import { Link } from "react-router";
 
 import cx from 'classnames';
 
-function LeftNavPaneItem({ name, path, selected }) {
+export function LeftNavPaneItem({ name, path, selected }) {
     return (
         <li>
             <Link to={path}
@@ -14,7 +14,7 @@ function LeftNavPaneItem({ name, path, selected }) {
     );
 }
 
-function LeftNavPane({ children }) {
+export function LeftNavPane({ children }) {
     return (
         <div className="MetadataEditor-main flex flex-row flex-full mt2">
             <div className="MetadataEditor-table-list AdminList flex-no-shrink">
@@ -25,6 +25,3 @@ function LeftNavPane({ children }) {
         </div>
     );
 }
-
-export default LeftNavPaneItem;
-export default LeftNavPane;

@@ -24,20 +24,8 @@ const Group = ({ group, index, showGroupDetail }) => {
 }
 
 function GroupsListing({ location: { pathname }, groups }) {
-    const nav = (
-        <TopLevelLeftNavPane currentPath={pathname} />
-    );
-    console.log('nav = ', nav);
-
-    const x = (
-        <div>
-            HERE!
-        </div>
-    );
-    console.log('x = ', x);
-
     return (
-        <Permissions leftNavPane={nav}>
+        <Permissions leftNavPane={<TopLevelLeftNavPane currentPath={pathname} />}>
             <ul>
                 {groups && groups.map((group, index) =>
                     <Group key={group.id} group={group} index={index} />
