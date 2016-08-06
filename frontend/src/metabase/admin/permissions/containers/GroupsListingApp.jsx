@@ -19,11 +19,7 @@ const mapDispatchToProps = {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class GroupsListingApp extends Component {
     async componentWillMount() {
-        try {
-            await this.props.fetchGroups();
-        } catch (error) {
-            console.error('Error loading groups:', error);
-        }
+        await this.props.fetchGroups();
     }
 
     render() {

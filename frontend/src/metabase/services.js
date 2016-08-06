@@ -576,6 +576,13 @@ CoreServices.factory('Permissions', ['$resource', function($resource) {
             method: 'GET',
             url: '/api/permissions/groups',
             isArray: true
+        },
+        groupDetails: {
+            method: 'GET',
+            url: '/api/permissions/group/:id',
+            params: {
+                id: '@id'
+            }
         }
     });
 }]);

@@ -36,7 +36,7 @@ function NavPane({ groups, currentPath }) {
 function MembersItem({member}) {
     return (
         <tr>
-            <td>{member.name}</td>
+            <td>{member.first_name + " " + member.last_name}</td>
             <td>{member.email}</td>
         </tr>
     );
@@ -104,34 +104,20 @@ function DatabasesList({databases}) {
 }
 
 
-function GroupDetail({ location: { pathname }, params }) {
-    const members = [
-        {name: "Cynthia Williams", email: "thamilton@topicblan.edu"},
-        {name: "Tyler Burton", email: "spowell@photospace.biz"},
-        {name: "Hannah Kelley", email: "tmatthews@cogibox.net"}
-    ];
-
-    const groups = [
-        {name: "Admins", id: 1},
-        {name: "Default Group", id: 2},
-        {name: "Enterprise", id: 3},
-        {name: "Execs", id: 4}
-    ];
-
-    const databases = [
-        {name: "Sample Dataset", id: 1, unrestricted: true},
-        {name: "Production DB", id: 2, unrestricted: false, tables: [
+function GroupDetail({ location: { pathname }, group, groups }) {
+    if (group && group.databases && group.databases.length) {
+        group.databases[0].tables = [
             {name: "Events", id: 1},
             {name: "Games", id: 2},
             {name: "Users", id: 3}
-        ]}
-    ];
+        ];
+    }
 
     return (
         <Permissions leftNavPane={<NavPane groups={groups} currentPath={pathname} />}>
             <Title />
-            <MembersList members={members} />
-            <DatabasesList databases={databases} />
+            <MembersList members={group.members} />
+            <DatabasesList databases={group.databases} />
         </Permissions>
     );
 }

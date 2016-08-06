@@ -8,8 +8,6 @@ import Permissions from "./Permissions.jsx";
 import TopLevelLeftNavPane from "./TopLevelLeftNavPane.jsx";
 
 const Group = ({ group, index, showGroupDetail }) => {
-    console.log('renderGroup(', group, ",", index, ')'); // NOCOMMIT
-
     const COLORS = ['bg-error', 'bg-purple', 'bg-brand', 'bg-gold', 'bg-green'],
           color  = COLORS[(index % COLORS.length)];
 

@@ -10,7 +10,7 @@ export default (
         <IndexRedirect to="groups" />
         <Route path="groups">
             <IndexRoute component={GroupsListingApp} />
-            <Route path=":groupId" component={GroupDetailApp} />
+            <Route path=":groupID" component={GroupDetailApp} />
         </Route>
         <Route path="data" component={DataApp} />
     </Route>
