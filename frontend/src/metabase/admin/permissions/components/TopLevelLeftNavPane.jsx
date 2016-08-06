@@ -4,8 +4,6 @@ import { LeftNavPane, LeftNavPaneItem } from "./LeftNavPane.jsx"
 
 function TopLevelLeftNavPane({ currentPath }) {
     currentPath = currentPath || "";
-    console.log('currentPath:', currentPath);
-
     return (
         <LeftNavPane>
             <LeftNavPaneItem name="Groups" path="/admin/permissions/groups" selected={currentPath.startsWith("/admin/permissions/groups")} />

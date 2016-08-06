@@ -11,7 +11,6 @@ function PermissionsTitle() {
 }
 
 function Permissions({ leftNavPane, children }) {
-    console.log('leftNavPane:', leftNavPane); // NOCOMMIT
     return (
         <div className="flex p4">
             <div className="MetadataEditor flex-column full-height">
