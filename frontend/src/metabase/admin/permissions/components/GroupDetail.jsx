@@ -1,6 +1,9 @@
 import React, { Component, PropTypes } from "react";
 import { Link } from "react-router";
 
+import Permissions from "./Permissions.jsx";
+import { LeftNavPaneItem, LeftNavPane } from "./LeftNavPane.jsx";
+
 function Title() {
     return (
         <section className="PageHeader clearfix">
@@ -40,19 +43,40 @@ const MembersList = ({members}) => {
     );
 }
 
+function NavPane({ groups, currentPath }) {
+    console.log('currentPath', currentPath);
+    return (
+        <LeftNavPane>
+            {groups && groups.map((group) => {
+                 const path = "/admin/permissions/groups/" + group.id;
+                 console.log('path', path);
+                 return (
+                     <LeftNavPaneItem key={group.id} name={group.name} path={path} selected={currentPath.startsWith(path)} />
+                 );
+             })}
+        </LeftNavPane>
+    );
+}
 
-const GroupDetail = ({ params }) => {
+function GroupDetail({ location: { pathname }, params }) {
     const members = [
         {name: "Cynthia Williams", email: "thamilton@topicblan.edu"},
-        {name: "Cynthia Williams", email: "thamilton@topicblan.edu"},
-        {name: "Cynthia Williams", email: "thamilton@topicblan.edu"}
+        {name: "Tyler Burton", email: "spowell@photospace.biz"},
+        {name: "Hannah Kelley", email: "tmatthews@cogibox.net"}
+    ];
+
+    const groups = [
+        {name: "Admins", id: 1},
+        {name: "Default Group", id: 2},
+        {name: "Enterprise", id: 3},
+        {name: "Execs", id: 4}
     ];
 
     return (
-        <div>
+        <Permissions leftNavPane={<NavPane groups={groups} currentPath={pathname} />}>
             <Title />
             <MembersList members={members} />
-        </div>
+        </Permissions>
     );
 }
 
