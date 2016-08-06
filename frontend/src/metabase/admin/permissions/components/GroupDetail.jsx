@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from "react";
 import { Link } from "react-router";
 
+import AdminContentTable from "./AdminContentTable.jsx";
 import Permissions from "./Permissions.jsx";
 import { LeftNavPane, LeftNavPaneItem, LeftNavPaneItemBack } from "./LeftNavPane.jsx";
 
@@ -43,19 +44,11 @@ function MembersItem({member}) {
 
 function MembersList({members}) {
     return (
-        <table className="ContentTable">
-            <thead>
-                <tr>
-                    <th>Members</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                {members && members.map((member, index) =>
-                    <MembersItem key={index} member={member} />
-                 )}
-            </tbody>
-        </table>
+        <AdminContentTable columnTitles={["Members", "Email"]}>
+            {members && members.map((member, index) =>
+                <MembersItem key={index} member={member} />
+             )}
+        </AdminContentTable>
     );
 }
 

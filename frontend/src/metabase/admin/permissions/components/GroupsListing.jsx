@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 import UserAvatar from "metabase/components/UserAvatar.jsx";
 
+import AdminContentTable from "./AdminContentTable.jsx";
 import Permissions from "./Permissions.jsx";
 import TopLevelLeftNavPane from "./TopLevelLeftNavPane.jsx";
 
@@ -13,25 +14,35 @@ const Group = ({ group, index, showGroupDetail }) => {
           color  = COLORS[(index % COLORS.length)];
 
     return (
-        <Link to={"/admin/permissions/groups/" + group.id} className="block my4 no-decoration">
-            <span className="text-white inline-block">
-                <UserAvatar background={color} user={{first_name: group.name}} />
-            </span>
-            <span className="ml2 text-bold">
-                {group.name}
-            </span>
-         </Link>
+        <tr>
+            <td>
+                <Link to={"/admin/permissions/groups/" + group.id} className="link no-decoration">
+                    <span className="text-white inline-block">
+                        <UserAvatar background={color} user={{first_name: group.name}} />
+                    </span>
+                    <span className="ml2 text-bold">
+                        {group.name}
+                    </span>
+                </Link>
+            </td>
+            <td>
+                3
+            </td>
+            <td>
+                ...
+            </td>
+        </tr>
     );
 }
 
 function GroupsListing({ location: { pathname }, groups }) {
     return (
         <Permissions leftNavPane={<TopLevelLeftNavPane currentPath={pathname} />}>
-            <ul>
+            <AdminContentTable columnTitles={["Group name", "Members"]} >
                 {groups && groups.map((group, index) =>
                     <Group key={group.id} group={group} index={index} />
                  )}
-            </ul>
+            </AdminContentTable>
         </Permissions>
     );
 }
