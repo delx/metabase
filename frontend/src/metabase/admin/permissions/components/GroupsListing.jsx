@@ -1,14 +1,9 @@
 import React, { Component, PropTypes } from "react";
 import { Link } from "react-router";
 
+import Permissions from "../components/Permissions.jsx";
+import TopLevelLeftNavPane from "../components/TopLevelLeftNavPane.jsx";
 import UserAvatar from "metabase/components/UserAvatar.jsx";
-
-const GroupsListing = ({ groups }) =>
-    <ul>
-        {groups && groups.map((group, index) =>
-            <Group key={group.id} group={group} index={index} />
-        )}
-    </ul>
 
 const Group = ({ group, index, showGroupDetail }) => {
     console.log('renderGroup(', group, ",", index, ')'); // NOCOMMIT
@@ -25,6 +20,30 @@ const Group = ({ group, index, showGroupDetail }) => {
                 {group.name}
             </span>
          </Link>
+    );
+}
+
+function GroupsListing({ location: { pathname }, groups }) {
+    const nav = (
+        <TopLevelLeftNavPane currentPath={pathname} />
+    );
+    console.log('nav = ', nav);
+
+    const x = (
+        <div>
+            HERE!
+        </div>
+    );
+    console.log('x = ', x);
+
+    return (
+        <Permissions leftNavPane={nav}>
+            <ul>
+                {groups && groups.map((group, index) =>
+                    <Group key={group.id} group={group} index={index} />
+                 )}
+            </ul>
+        </Permissions>
     );
 }
 

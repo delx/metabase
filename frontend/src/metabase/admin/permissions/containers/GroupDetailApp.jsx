@@ -16,9 +16,6 @@ const mapDispatchToProps = {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class GroupDetailApp extends Component {
-    async componentWillMount() {
-    }
-
     render() {
         return <GroupDetail {...this.props} />;
     }

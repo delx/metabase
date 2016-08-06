@@ -27,6 +27,8 @@ export default class GroupsListingApp extends Component {
     }
 
     render() {
-        return <GroupsListing {...this.props} />;
+        return (
+            <GroupsListing {...this.props} />
+        );
     }
 }
