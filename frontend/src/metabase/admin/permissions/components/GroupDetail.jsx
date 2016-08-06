@@ -105,6 +105,9 @@ function DatabasesList({databases}) {
 
 
 function GroupDetail({ location: { pathname }, group, groups }) {
+    group = group || {};
+    groups = groups || [];
+
     if (group && group.databases && group.databases.length) {
         group.databases[0].tables = [
             {name: "Events", id: 1},
