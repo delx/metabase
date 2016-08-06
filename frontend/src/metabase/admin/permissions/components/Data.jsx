@@ -1,6 +1,14 @@
 import React, { Component, PropTypes } from "react";
 
-const Data = ({ params }) =>
-    <div>group: {params.groupId}</div>
+import Permissions from "./Permissions.jsx";
+import TopLevelLeftNavPane from "./TopLevelLeftNavPane.jsx";
+
+function Data ({ location: { pathname } }) {
+    return (
+        <Permissions leftNavPane={<TopLevelLeftNavPane currentPath={pathname} />}>
+            Data goes here!  😬
+        </Permissions>
+    );
+}
 
 export default Data;

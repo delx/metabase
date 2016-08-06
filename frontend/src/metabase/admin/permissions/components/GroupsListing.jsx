@@ -1,15 +1,16 @@
 import React, { Component, PropTypes } from "react";
 import { Link } from "react-router";
 
-import Permissions from "../components/Permissions.jsx";
-import TopLevelLeftNavPane from "../components/TopLevelLeftNavPane.jsx";
 import UserAvatar from "metabase/components/UserAvatar.jsx";
+
+import Permissions from "./Permissions.jsx";
+import TopLevelLeftNavPane from "./TopLevelLeftNavPane.jsx";
 
 const Group = ({ group, index, showGroupDetail }) => {
     console.log('renderGroup(', group, ",", index, ')'); // NOCOMMIT
 
     const COLORS = ['bg-error', 'bg-purple', 'bg-brand', 'bg-gold', 'bg-green'],
-          color  = COLORS[(index % COLORS.length)]
+          color  = COLORS[(index % COLORS.length)];
 
     return (
         <Link to={"/admin/permissions/groups/" + group.id} className="block my4 no-decoration">
