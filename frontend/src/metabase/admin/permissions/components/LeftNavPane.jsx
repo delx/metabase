@@ -14,6 +14,16 @@ export function LeftNavPaneItem({ name, path, selected }) {
     );
 }
 
+export function LeftNavPaneItemBack({ path }) {
+    return (
+        <li>
+            <Link to={path} className="AdminList-item flex align-center justify-between no-decoration link">
+                &lt; Back
+            </Link>
+        </li>
+    );
+}
+
 export function LeftNavPane({ children }) {
     return (
         <div className="MetadataEditor-main flex flex-row flex-full mt2">

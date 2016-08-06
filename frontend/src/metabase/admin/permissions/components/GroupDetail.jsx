@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from "react";
 import { Link } from "react-router";
 
 import Permissions from "./Permissions.jsx";
-import { LeftNavPaneItem, LeftNavPane } from "./LeftNavPane.jsx";
+import { LeftNavPane, LeftNavPaneItem, LeftNavPaneItemBack } from "./LeftNavPane.jsx";
 
 // todo - make title + button properties of Permissions since several pages use it
 function Title() {
@@ -20,6 +20,7 @@ function Title() {
 function NavPane({ groups, currentPath }) {
     return (
         <LeftNavPane>
+            <LeftNavPaneItemBack path="/admin/permissions/groups" />
             {groups && groups.map((group) => {
                  const path = "/admin/permissions/groups/" + group.id;
                  return (
