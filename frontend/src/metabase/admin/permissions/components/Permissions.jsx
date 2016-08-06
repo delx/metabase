@@ -13,12 +13,12 @@ function PermissionsTitle() {
 function Permissions({ leftNavPane, children }) {
     console.log('leftNavPane:', leftNavPane); // NOCOMMIT
     return (
-        <div className="flex flex-full p4">
+        <div className="flex p4">
             <div className="MetadataEditor flex-column full-height">
                 <PermissionsTitle />
                 {leftNavPane}
             </div>
-            <div className="flex-column m4">
+            <div className="flex-column flex-full m4">
                 {children}
             </div>
         </div>

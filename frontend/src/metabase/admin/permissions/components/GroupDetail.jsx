@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import Permissions from "./Permissions.jsx";
 import { LeftNavPaneItem, LeftNavPane } from "./LeftNavPane.jsx";
 
+// todo - make title + button properties of Permissions since several pages use it
 function Title() {
     return (
         <section className="PageHeader clearfix">
@@ -15,7 +16,22 @@ function Title() {
     );
 }
 
-function MembersRow({member}) {
+
+function NavPane({ groups, currentPath }) {
+    return (
+        <LeftNavPane>
+            {groups && groups.map((group) => {
+                 const path = "/admin/permissions/groups/" + group.id;
+                 return (
+                     <LeftNavPaneItem key={group.id} name={group.name} path={path} selected={currentPath.startsWith(path)} />
+                 );
+             })}
+        </LeftNavPane>
+    );
+}
+
+
+function MembersItem({member}) {
     return (
         <tr>
             <td>{member.name}</td>
@@ -24,8 +40,7 @@ function MembersRow({member}) {
     );
 }
 
-const MembersList = ({members}) => {
-    console.log('members:', members); // NOCOMMIT
+function MembersList({members}) {
     return (
         <table className="ContentTable">
             <thead>
@@ -36,27 +51,64 @@ const MembersList = ({members}) => {
             </thead>
             <tbody>
                 {members && members.map((member, index) =>
-                    <MembersRow key={index} member={member} />
+                    <MembersItem key={index} member={member} />
                  )}
             </tbody>
         </table>
     );
 }
 
-function NavPane({ groups, currentPath }) {
-    console.log('currentPath', currentPath);
+
+function DatabaseItemTableItem({table}) {
     return (
-        <LeftNavPane>
-            {groups && groups.map((group) => {
-                 const path = "/admin/permissions/groups/" + group.id;
-                 console.log('path', path);
-                 return (
-                     <LeftNavPaneItem key={group.id} name={group.name} path={path} selected={currentPath.startsWith(path)} />
-                 );
-             })}
-        </LeftNavPane>
+        <li className="my2">
+            {table.name}
+        </li>
     );
 }
+
+function DatabaseItemTablesList({tables}) {
+    return (
+        <ul>
+            {tables && tables.map((table, index) =>
+                <DatabaseItemTableItem key={index} table={table} />
+             )}
+        </ul>
+    );
+}
+
+function DatabaseItem({database}) {
+    return (
+        <div className="my4 py1">
+            <h4 className="my2">
+                {database.name ? database.name.toUpperCase() : null}
+            </h4>
+            <div className="ml4">
+                <div className="text-bold">
+                    {database.unrestricted ? "Unrestricted" : "Some tables"}
+                    <Link to={"/admin/permissions/groups/1/database/1"} className="no-decoration mx2 link">
+                        Change Settings
+                    </Link>
+                </div>
+                <DatabaseItemTablesList tables={database.tables} />
+            </div>
+        </div>
+    );
+}
+
+function DatabasesList({databases}) {
+    return (
+        <div className="mt4">
+            <h2>
+                What Marketing Can See
+            </h2>
+            {databases && databases.map((database, index) =>
+                <DatabaseItem key={index} database={database} />
+             )}
+        </div>
+    );
+}
+
 
 function GroupDetail({ location: { pathname }, params }) {
     const members = [
@@ -72,10 +124,20 @@ function GroupDetail({ location: { pathname }, params }) {
         {name: "Execs", id: 4}
     ];
 
+    const databases = [
+        {name: "Sample Dataset", id: 1, unrestricted: true},
+        {name: "Production DB", id: 2, unrestricted: false, tables: [
+            {name: "Events", id: 1},
+            {name: "Games", id: 2},
+            {name: "Users", id: 3}
+        ]}
+    ];
+
     return (
         <Permissions leftNavPane={<NavPane groups={groups} currentPath={pathname} />}>
             <Title />
             <MembersList members={members} />
+            <DatabasesList databases={databases} />
         </Permissions>
     );
 }
