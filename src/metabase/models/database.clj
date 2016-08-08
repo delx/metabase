@@ -53,6 +53,13 @@
   [{:keys [id]}]
   (db/select 'Table, :db_id id, :active true, {:order-by [[:display_name :asc]]}))
 
+(defn schemas
+  "Return a set of schema names (as string) associated with this `Database`."
+  [{:keys [id]}]
+  (db/select-field :schema 'Table
+    :db_id id
+    {:modifiers [:DISTINCT]}))
+
 
 (add-encoder DatabaseInstance (fn [db json-generator]
                                 (encode-map (cond
