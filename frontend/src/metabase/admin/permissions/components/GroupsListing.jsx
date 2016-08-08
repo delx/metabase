@@ -1,13 +1,41 @@
 import React, { Component, PropTypes } from "react";
 import { Link } from "react-router";
 
+import Icon from "metabase/components/Icon.jsx";
+import PopoverWithTrigger from "metabase/components/PopoverWithTrigger.jsx";
 import UserAvatar from "metabase/components/UserAvatar.jsx";
 
 import AdminContentTable from "./AdminContentTable.jsx";
 import Permissions from "./Permissions.jsx";
 import TopLevelLeftNavPane from "./TopLevelLeftNavPane.jsx";
 
-const Group = ({ group, index, showGroupDetail }) => {
+function editGroup(group) {
+    alert('TODO: edit group: ' + group.id);
+}
+
+function removeGroup(group) {
+    alert('TODO: remove group: ' + group.id);
+}
+
+function ActionsPopover({ group }) {
+    return (
+        <PopoverWithTrigger className="block"
+                            triggerElement={<span className="text-grey-1"><Icon name={'ellipsis'}></Icon></span>}>
+            <ul className="UserActionsSelect">
+                <li className="pt1 pb2 px2 bg-brand-hover text-white-hover cursor-pointer"
+                    onClick={editGroup.bind(null, group)}>
+                    Edit Name
+                </li>
+                <li className="pt1 pb2 px2 bg-brand-hover text-white-hover cursor-pointer text-error"
+                    onClick={removeGroup.bind(null, group)}>
+                    Remove Group
+                </li>
+            </ul>
+        </PopoverWithTrigger>
+    )
+}
+
+function Group({ group, index, showGroupDetail }) {
     const COLORS = ['bg-error', 'bg-purple', 'bg-brand', 'bg-gold', 'bg-green'],
           color  = COLORS[(index % COLORS.length)];
 
@@ -26,10 +54,8 @@ const Group = ({ group, index, showGroupDetail }) => {
             <td>
                 {group.members}
             </td>
-            <td className="cursor-pointer" onClick={alert.bind(null, 'TODO: Show the edit group modal!')}>
-                <h1>
-                    ...
-                </h1>
+            <td className="text-right">
+                <ActionsPopover group={group} />
             </td>
         </tr>
     );
