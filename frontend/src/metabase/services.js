@@ -590,6 +590,14 @@ CoreServices.factory('Permissions', ['$resource', function($resource) {
             params: {
                 id: '@id'
             }
+        },
+        databaseGroupDetails: {
+            method: 'GET',
+            url: '/api/permissions/database/:databaseID/group/:groupID',
+            params: {
+                databaseID: '@databaseID',
+                groupID: '@groupID'
+            }
         }
     });
 }]);

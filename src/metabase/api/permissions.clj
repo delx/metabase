@@ -1,6 +1,7 @@
 (ns metabase.api.permissions
   "/api/permissions endpoints."
-  (:require [compojure.core :refer [GET]]
+  (:require [clojure.string :as s]
+            [compojure.core :refer [GET]]
             [metabase.api.common :refer :all]
             [metabase.db :as db]
             (metabase.models [database :as database]
@@ -57,6 +58,23 @@
                             (assoc group
                               :access (when (:unrestricted_schema_access db-perms)
                                         "All tables"))))})}))
+
+(defendpoint GET "/database/:database-id/group/:group-id"
+  "Get details about the permissions for a specific Group for a specific Database."
+  [database-id group-id]
+  (check-superuser)
+  (let [db-perms           (db/select-one 'DatabasePermissions
+                             :database_id database-id
+                             :group_id    group-id)
+        schema-name->perms (when-not (:unrestricted_schema_access db-perms)
+                             (u/key-by :schema (db/select 'SchemaPermissions :database_id 1, :group_id 1)))]
+    (assoc db-perms
+      :schemas (for [schema-name (sort-by (comp s/lower-case :name)
+                                          (database/schemas {:id database-id}))]
+                 {:name schema-name
+                  :access (if (:unrestricted_schema_access db-perms)
+                            "All tables"
+                            (schema-name->perms schema-name))}))))
 
 
 

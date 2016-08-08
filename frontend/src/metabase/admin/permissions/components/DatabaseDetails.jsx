@@ -5,22 +5,9 @@ import Tooltip from "metabase/components/Tooltip.jsx";
 import UserAvatar from "metabase/components/UserAvatar.jsx";
 
 import AdminContentTable from "./AdminContentTable.jsx";
+import DatabasesLeftNavPane from "./DatabasesLeftNavPane.jsx";
 import Permissions from "./Permissions.jsx";
-import { LeftNavPane, LeftNavPaneItem, LeftNavPaneItemBack } from "./LeftNavPane.jsx";
 
-function NavPane({ currentPath, databases }) {
-    return (
-        <LeftNavPane>
-            <LeftNavPaneItemBack path="/admin/permissions/data" />
-            {databases && databases.map((database) => {
-                 const path = "/admin/permissions/databases/" + database.id;
-                 return (
-                     <LeftNavPaneItem key={database.id} name={database.name} path={path} selected={currentPath.startsWith(path)} />
-                 );
-             })}
-        </LeftNavPane>
-    );
-}
 
 function SchemaItemGroupItem({ databaseID, group, database, color }) {
     console.log('group:', group); // NOCOMMIT
@@ -66,7 +53,7 @@ function SchemasTable({ schemas, database }) {
     );
 }
 
-function DatabaseDetails({ location: { pathname }, database, databases }) {
+export default function DatabaseDetails({ location: { pathname }, database, databases }) {
     database = database || {};
     databases = databases || [];
 
@@ -74,10 +61,8 @@ function DatabaseDetails({ location: { pathname }, database, databases }) {
     console.log('databases:', databases); // NOCOMMIT
 
     return (
-        <Permissions leftNavPane={<NavPane databases={databases} currentPath={pathname} />}>
+        <Permissions leftNavPane={<DatabasesLeftNavPane databases={databases} currentPath={pathname} />}>
             <SchemasTable schemas={database.schemas} database={database} />
         </Permissions>
     );
 }
-
-export default DatabaseDetails;

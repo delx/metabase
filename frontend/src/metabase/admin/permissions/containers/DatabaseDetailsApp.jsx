@@ -6,6 +6,7 @@ import { fetchDatabases, fetchDatabaseDetails } from "../permissions";
 
 import DatabaseDetails from "../components/DatabaseDetails.jsx";
 
+
 function mapStateToProps(state, props) {
     return {
         databases: getDatabases(state, props),
