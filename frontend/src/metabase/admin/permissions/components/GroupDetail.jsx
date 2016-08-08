@@ -33,16 +33,19 @@ function NavPane({ groups, currentPath }) {
 }
 
 
-function MembersItem({member}) {
+function MembersItem({ member }) {
     return (
         <tr>
             <td>{member.first_name + " " + member.last_name}</td>
             <td>{member.email}</td>
+            <td className="text-right cursor-pointer" onClick={alert.bind(null, 'TODO: remove user!')}>
+                RED X GOES HERE!
+            </td>
         </tr>
     );
 }
 
-function MembersList({members}) {
+function MembersList({ members }) {
     return (
         <AdminContentTable columnTitles={["Members", "Email"]}>
             {members && members.map((member, index) =>
@@ -53,7 +56,7 @@ function MembersList({members}) {
 }
 
 
-function DatabaseItemTableItem({table}) {
+function DatabaseItemTableItem({ table }) {
     return (
         <li className="my2">
             {table.name}
@@ -61,7 +64,7 @@ function DatabaseItemTableItem({table}) {
     );
 }
 
-function DatabaseItemTablesList({tables}) {
+function DatabaseItemTablesList({ tables }) {
     return (
         <ul>
             {tables && tables.map((table, index) =>
@@ -71,7 +74,7 @@ function DatabaseItemTablesList({tables}) {
     );
 }
 
-function DatabaseItem({database}) {
+function DatabaseItem({ database }) {
     return (
         <div className="my4 py1">
             <h4 className="my2">
@@ -90,7 +93,7 @@ function DatabaseItem({database}) {
     );
 }
 
-function DatabasesList({databases}) {
+function DatabasesList({ databases }) {
     return (
         <div className="mt4">
             <h2>
