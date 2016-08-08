@@ -23,7 +23,7 @@ function Permissions({ leftNavPane, children, rightTitleButtonTitle, rightTitleB
                 <PermissionsTitle buttonTitle={rightTitleButtonTitle} buttonLink={rightTitleButtonLink} />
                 {leftNavPane}
             </div>
-            <div className="flex-column flex-full mx4">
+            <div className="flex-column flex-full m4">
                 {children}
             </div>
         </div>

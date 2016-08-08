@@ -22,12 +22,10 @@ function ActionsPopover({ group }) {
         <PopoverWithTrigger className="block"
                             triggerElement={<span className="text-grey-1"><Icon name={'ellipsis'}></Icon></span>}>
             <ul className="UserActionsSelect">
-                <li className="pt1 pb2 px2 bg-brand-hover text-white-hover cursor-pointer"
-                    onClick={editGroup.bind(null, group)}>
+                <li className="pt1 pb2 px2 bg-brand-hover text-white-hover cursor-pointer" onClick={editGroup.bind(null, group)}>
                     Edit Name
                 </li>
-                <li className="pt1 pb2 px2 bg-brand-hover text-white-hover cursor-pointer text-error"
-                    onClick={removeGroup.bind(null, group)}>
+                <li className="pt1 pb2 px2 bg-brand-hover text-white-hover cursor-pointer text-error" onClick={removeGroup.bind(null, group)}>
                     Remove Group
                 </li>
             </ul>
