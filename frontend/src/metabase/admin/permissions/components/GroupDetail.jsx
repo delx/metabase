@@ -6,12 +6,12 @@ import Permissions from "./Permissions.jsx";
 import { LeftNavPane, LeftNavPaneItem, LeftNavPaneItemBack } from "./LeftNavPane.jsx";
 
 // todo - make title + button properties of Permissions since several pages use it
-function Title() {
+function Title({ group }) {
     return (
         <section className="PageHeader clearfix">
             <Link to="/admin/permissions/groups" className="Button Button--primary float-right">Add someone to this group</Link>
             <h2 className="PageTitle">
-                Marketing
+                {group.name}
             </h2>
         </section>
     );
@@ -93,11 +93,11 @@ function DatabaseItem({ database }) {
     );
 }
 
-function DatabasesList({ databases }) {
+function DatabasesList({ group, databases }) {
     return (
         <div className="mt4">
             <h2>
-                What Marketing Can See
+                What {group.name} Can See
             </h2>
             {databases && databases.map((database, index) =>
                 <DatabaseItem key={index} database={database} />
@@ -121,9 +121,9 @@ function GroupDetail({ location: { pathname }, group, groups }) {
 
     return (
         <Permissions leftNavPane={<NavPane groups={groups} currentPath={pathname} />}>
-            <Title />
+            <Title group={group} />
             <MembersList members={group.members} />
-            <DatabasesList databases={group.databases} />
+            <DatabasesList group={group} databases={group.databases} />
         </Permissions>
     );
 }

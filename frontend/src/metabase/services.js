@@ -583,6 +583,13 @@ CoreServices.factory('Permissions', ['$resource', function($resource) {
             params: {
                 id: '@id'
             }
+        },
+        databaseDetails: {
+            method: 'GET',
+            url: '/api/permissions/database/:id',
+            params: {
+                id: '@id'
+            }
         }
     });
 }]);

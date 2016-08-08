@@ -45,14 +45,18 @@
         ;; TODO - handle schema permissions
         ;; schema-permissions       (db/select 'SchemaPermissions :database_id id)
         schemas                  (database/schemas {:id id})
-        groups                   (db/select 'PermissionsGroup)]
-    {:schemas (for [schema schemas]
+        groups                   (db/select 'PermissionsGroup
+                                   {:order-by [:name]})]
+    {:id      id
+     :schemas (for [schema schemas]
                 {:name schema
-                 :groups (for [group groups
-                               :let  [db-perms (group-id->db-permissions (:id group))]
-                               :when (:unrestricted_schema_access db-perms)]
-                           {:name   (:name group)
-                            :access "All tables"})})}))
+                 :groups (cons
+                          {:name "FAKE", :access nil, :id 100}
+                          (for [group groups
+                                :let  [db-perms (group-id->db-permissions (:id group))]]
+                            (assoc group
+                              :access (when (:unrestricted_schema_access db-perms)
+                                        "All tables"))))})}))
 
 
 
