@@ -39,7 +39,6 @@ function makeActionHandler(actionType) {
 
 // REDUCERS
 const groups = makeActionHandler(FETCH_PERMISSIONS_GROUPS);
-console.log('GROUPS:', groups);
 const group = makeActionHandler(FETCH_PERMISSIONS_GROUP_DETAILS);
 const databases = makeActionHandler(FETCH_DATABASES);
 

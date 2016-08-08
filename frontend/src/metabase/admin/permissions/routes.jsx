@@ -4,6 +4,7 @@ import { Route, IndexRoute, IndexRedirect } from 'react-router';
 import GroupsListingApp from "./containers/GroupsListingApp.jsx";
 import GroupDetailApp from "./containers/GroupDetailApp.jsx";
 import DataApp from "./containers/DataApp.jsx";
+import DatabaseDetailsApp from "./containers/DatabaseDetailsApp.jsx";
 
 export default (
     <Route path="permissions">
@@ -13,5 +14,8 @@ export default (
             <Route path=":groupID" component={GroupDetailApp} />
         </Route>
         <Route path="data" component={DataApp} />
+        <Route path="databases">
+            <Route path=":databaseID" component={DatabaseDetailsApp} />
+        </Route>
     </Route>
 );

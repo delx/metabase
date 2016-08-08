@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import { getGroup, getGroups } from "../selectors";
@@ -6,7 +6,7 @@ import { fetchGroups, fetchGroupDetails } from "../permissions";
 
 import GroupDetail from "../components/GroupDetail.jsx";
 
-const mapStateToProps = function(state, props) {
+function mapStateToProps(state, props) {
     return {
         group: getGroup(state, props),
         groups: getGroups(state, props)
@@ -24,6 +24,7 @@ export default class GroupDetailApp extends Component {
         await this.props.fetchGroups();
         await this.props.fetchGroupDetails(this.props.routeParams.groupID);
     }
+
     render() {
         return <GroupDetail {...this.props} />;
     }

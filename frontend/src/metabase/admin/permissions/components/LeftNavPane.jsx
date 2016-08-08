@@ -17,7 +17,7 @@ export function LeftNavPaneItem({ name, path, selected }) {
 export function LeftNavPaneItemBack({ path }) {
     return (
         <li>
-            <Link to={path} className="AdminList-item flex align-center justify-between no-decoration link">
+            <Link to={path} className="AdminList-item flex align-center justify-between no-decoration link text-bold">
                 &lt; Back
             </Link>
         </li>

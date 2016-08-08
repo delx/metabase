@@ -4,9 +4,9 @@ import { connect } from "react-redux";
 import { getDatabases } from "../selectors";
 import { fetchDatabases } from "../permissions";
 
-import Data from "../components/Data.jsx";
+import DatabaseDetails from "../components/DatabaseDetails.jsx";
 
-const mapStateToProps = function(state, props) {
+function mapStateToProps(state, props) {
     return {
         databases: getDatabases(state, props)
     };
@@ -14,17 +14,17 @@ const mapStateToProps = function(state, props) {
 
 const mapDispatchToProps = {
     fetchDatabases
-}
+};
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class DataApp extends Component {
+export default class DatabaseDetailsApp extends Component {
     async componentWillMount() {
         await this.props.fetchDatabases();
     }
 
     render() {
         return (
-            <Data {...this.props} />
+            <DatabaseDetails {...this.props} />
         );
     }
 }
