@@ -1,6 +1,9 @@
 import React from "react";
 import { Link } from "react-router";
 
+import Icon from "metabase/components/Icon.jsx";
+import Input from "metabase/components/Input.jsx";
+
 import AdminContentTable from "./AdminContentTable.jsx";
 import Permissions from "./Permissions.jsx";
 import { LeftNavPane, LeftNavPaneItem, LeftNavPaneItemBack } from "./LeftNavPane.jsx";
@@ -9,7 +12,10 @@ import { LeftNavPane, LeftNavPaneItem, LeftNavPaneItemBack } from "./LeftNavPane
 function Title({ group }) {
     return (
         <section className="PageHeader clearfix">
-            <Link to="/admin/permissions/groups" className="Button Button--primary float-right">Add someone to this group</Link>
+            <Link to={"/admin/permissions/groups/" + group.id + "?addMember=true"}
+                  className="Button Button--primary float-right">
+                Add members
+            </Link>
             <h2 className="PageTitle">
                 {group.name}
             </h2>
@@ -32,62 +38,86 @@ function NavPane({ groups, currentPath }) {
     );
 }
 
-
-function MembersItem({ member }) {
+function AddMemberRow({ group }) {
     return (
-        <tr>
-            <td>{member.first_name + " " + member.last_name}</td>
-            <td>{member.email}</td>
-            <td className="text-right cursor-pointer" onClick={alert.bind(null, 'TODO: remove user!')}>
-                RED X GOES HERE!
+        <tr className="bordered border-brand rounded">
+            <td colSpan={2}>
+                <Input className="AdminInput h3" type="text" placeholder="Julie McMemberson" />
+            </td>
+            <td className="text-right">
+                <Link to={"/admin/permissions/groups/" + group.id}
+                      className="link no-decoration cursor-pointer">
+                    Cancel
+                </Link>
+                <span className="Button text-grey-2 ml2">
+                      Done
+                </span>
             </td>
         </tr>
     );
 }
 
-function MembersList({ members }) {
+
+function MemberRow({ member }) {
+    return (
+        <tr>
+            <td>{member.first_name + " " + member.last_name}</td>
+            <td>{member.email}</td>
+            <td className="text-right cursor-pointer" onClick={alert.bind(null, 'TODO: remove user!')}>
+                <Icon name="close" className="text-grey-1" size={16} />
+            </td>
+        </tr>
+    );
+}
+
+function MembersTable({ members, group, showAddMemberRow }) {
     return (
         <AdminContentTable columnTitles={["Members", "Email"]}>
+            {showAddMemberRow ? (
+                 <AddMemberRow group={group} />
+             ) : null}
             {members && members.map((member, index) =>
-                <MembersItem key={index} member={member} />
+                <MemberRow key={index} member={member} />
              )}
         </AdminContentTable>
     );
 }
 
 
-function DatabaseItemTableItem({ table }) {
+function DatabasesListItemTablesListItem({ table }) {
     return (
-        <li className="my2">
-            {table.name}
+        <li className="my1">
+            <Icon name="table2" size={16} className="mr1 text-grey-1" /> {table.name}
         </li>
     );
 }
 
-function DatabaseItemTablesList({ tables }) {
+function DatabasesListItemTablesList({ tables }) {
     return (
         <ul>
             {tables && tables.map((table, index) =>
-                <DatabaseItemTableItem key={index} table={table} />
+                <DatabasesListItemTablesListItem key={index} table={table} />
              )}
         </ul>
     );
 }
 
-function DatabaseItem({ database }) {
+function DatabasesListItem({ database, group }) {
     return (
         <div className="my4 py1">
-            <h4 className="my2">
+            <Icon className="Icon text-grey-1" name="database" size={16} />
+            <span className="mx2">
                 {database.name ? database.name.toUpperCase() : null}
-            </h4>
-            <div className="ml4">
+            </span>
+            <div className="mt3 ml4">
                 <div className="text-bold">
                     {database.unrestricted ? "Unrestricted" : "Some tables"}
-                    <Link to={"/admin/permissions/groups/1/database/1"} className="no-decoration mx2 link">
+                    <Link to={"/admin/permissions/databases/" + database.database_id + "/groups/" + group.id}
+                          className="no-decoration mx2 link">
                         Change Settings
                     </Link>
                 </div>
-                <DatabaseItemTablesList tables={database.tables} />
+                <DatabasesListItemTablesList tables={database.tables} />
             </div>
         </div>
     );
@@ -100,29 +130,30 @@ function DatabasesList({ group, databases }) {
                 What {group.name} Can See
             </h2>
             {databases && databases.map((database, index) =>
-                <DatabaseItem key={index} database={database} />
+                <DatabasesListItem key={index} database={database} group={group} />
              )}
         </div>
     );
 }
 
 
-function GroupDetail({ location: { pathname }, group, groups }) {
+function GroupDetail({ location: { pathname, query }, group, groups }) {
+    console.log('query = ', query);
     group = group || {};
     groups = groups || [];
 
     if (group && group.databases && group.databases.length) {
         group.databases[0].tables = [
-            {name: "Events", id: 1},
-            {name: "Games", id: 2},
-            {name: "Users", id: 3}
+            {name: "These", id: 1},
+            {name: "Are", id: 2},
+            {name: "Fake", id: 3}
         ];
     }
 
     return (
         <Permissions leftNavPane={<NavPane groups={groups} currentPath={pathname} />}>
             <Title group={group} />
-            <MembersList members={group.members} />
+            <MembersTable members={group.members} group={group} showAddMemberRow={query.addMember === "true"}/>
             <DatabasesList group={group} databases={group.databases} />
         </Permissions>
     );
