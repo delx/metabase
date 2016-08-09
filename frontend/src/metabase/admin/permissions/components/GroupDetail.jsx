@@ -1,8 +1,13 @@
-import React from "react";
+import React, { Component } from "react";
 import { Link } from "react-router";
+
+import _ from "underscore";
+import cx from "classnames";
 
 import Icon from "metabase/components/Icon.jsx";
 import Input from "metabase/components/Input.jsx";
+import Popover from "metabase/components/Popover.jsx";
+import UserAvatar from "metabase/components/UserAvatar.jsx";
 
 import AdminContentTable from "./AdminContentTable.jsx";
 import Permissions from "./Permissions.jsx";
@@ -38,25 +43,84 @@ function NavPane({ groups, currentPath }) {
     );
 }
 
-function AddMemberRow({ group }) {
+function addMember(groupID, user) {
+    alert('TODO: add user ' + user.id + ' to group ' + groupID);
+}
+
+function AddMemberAutocompleteSuggestions({ groupID, users, selectedUserID }) {
+    const COLORS = ['bg-error', 'bg-purple', 'bg-brand', 'bg-gold', 'bg-green'];
+    console.log('users:', users);
     return (
-        <tr className="bordered border-brand rounded">
-            <td colSpan={2}>
-                <Input className="AdminInput h3" type="text" placeholder="Julie McMemberson" />
-            </td>
-            <td className="text-right">
-                <Link to={"/admin/permissions/groups/" + group.id}
-                      className="link no-decoration cursor-pointer">
-                    Cancel
-                </Link>
-                <span className="Button text-grey-2 ml2">
-                      Done
-                </span>
-            </td>
-        </tr>
+        <Popover className="bordered" hasArrow={false} targetOffsetX={-100} targetOffsetY={2}>
+            {users && users.map((user, index) => {
+                 const color =  COLORS[(index % COLORS.length)];
+                 return (
+                     <div key={index} className="m2 cursor-pointer" onClick={() => addMember(groupID, user)}>
+                         <span className="inline-block text-white mr2">
+                             <UserAvatar background={color} user={user} />
+                         </span>
+                         <span className="h3">
+                             {user.common_name}
+                         </span>
+                     </div>
+                 );
+             })}
+        </Popover>
     );
 }
 
+function filterUsers(users, text) {
+    console.log('filterUsers(', users, text, ')');
+
+    if (!text || !text.length) return users;
+
+    text = text.toLowerCase();
+    return _.filter(users, (user) => user.common_name && user.common_name.toLowerCase().includes(text));
+}
+
+class AddMemberRow extends Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            text: "",
+            suggestions: [],
+            selectedUserID: null
+        }
+    }
+
+    updateText(newText) {
+        console.log('updateText!', newText);
+        // TODO - autocomplete suggestions
+        this.setState({
+            text: newText
+        });
+    }
+
+    render() {
+        const validUserSelected = !!this.state.selectedUserID;
+        const filteredUsers = filterUsers(this.props.users, this.state.text);
+        return (
+            <tr className="bordered border-brand rounded">
+                <td>
+                    <AddMemberAutocompleteSuggestions users={filteredUsers} groupID={this.props.group.id} />
+                    <Input className="AdminInput h3" type="text" placeholder="Julie McMemberson" value={this.state.text}
+                           onChange={(e) => this.updateText(e.target.value)} />
+                </td>
+                <td />
+                <td className="text-right">
+                    <Link to={"/admin/permissions/groups/" + this.props.group.id}
+                          className="link no-decoration cursor-pointer">
+                        Cancel
+                    </Link>
+                    <button className={cx("Button ml2", {"Button--primary": validUserSelected})} disabled={!validUserSelected}
+                            onClick={() => addMember(this.props.group.id, this.state.text)}>
+                        Done
+                    </button>
+                </td>
+            </tr>
+        );
+    }
+}
 
 function MemberRow({ member }) {
     return (
@@ -70,11 +134,11 @@ function MemberRow({ member }) {
     );
 }
 
-function MembersTable({ members, group, showAddMemberRow }) {
+function MembersTable({ members, group, showAddMemberRow, users }) {
     return (
         <AdminContentTable columnTitles={["Members", "Email"]}>
             {showAddMemberRow ? (
-                 <AddMemberRow group={group} />
+                 <AddMemberRow group={group} users={users} />
              ) : null}
             {members && members.map((member, index) =>
                 <MemberRow key={index} member={member} />
@@ -137,9 +201,10 @@ function DatabasesList({ group, databases }) {
 }
 
 
-function GroupDetail({ location: { pathname, query }, group, groups }) {
+function GroupDetail({ location: { pathname, query }, group, groups, users }) {
     group = group || {};
     groups = groups || [];
+    users = users || [];
 
     if (group && group.databases && group.databases.length) {
         group.databases[0].tables = [
@@ -152,7 +217,7 @@ function GroupDetail({ location: { pathname, query }, group, groups }) {
     return (
         <Permissions leftNavPane={<NavPane groups={groups} currentPath={pathname} />}>
             <Title group={group} />
-            <MembersTable members={group.members} group={group} showAddMemberRow={query.addMember === "true"}/>
+            <MembersTable members={group.members} group={group} showAddMemberRow={query.addMember === "true"} users={users} />
             <DatabasesList group={group} databases={group.databases} />
         </Permissions>
     );
