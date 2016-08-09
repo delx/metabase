@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
-import { getDatabases, getDatabaseGroupDetails } from "../selectors";
-import { fetchDatabases, fetchDatabaseGroupDetails } from "../permissions";
+import { getDatabases, getDatabasePermissions, getGroups } from "../selectors";
+import { fetchDatabases, fetchDatabasePermissions, fetchGroups } from "../permissions";
 
 import DatabaseGroupDetails from "../components/DatabaseGroupDetails.jsx";
 
@@ -10,13 +10,15 @@ import DatabaseGroupDetails from "../components/DatabaseGroupDetails.jsx";
 function mapStateToProps(state, props) {
     return {
         databases: getDatabases(state, props),
-        databaseGroup: getDatabaseGroupDetails(state, props)
+        databasePermissions: getDatabasePermissions(state, props),
+        groups: getGroups(state, props)
     };
 }
 
 const mapDispatchToProps = {
     fetchDatabases,
-    fetchDatabaseGroupDetails
+    fetchDatabasePermissions,
+    fetchGroups
 };
 
 
@@ -24,7 +26,8 @@ const mapDispatchToProps = {
 export default class DatabaseGroupDetailsApp extends Component {
     async componentWillMount() {
         await this.props.fetchDatabases();
-        await this.props.fetchDatabaseGroupDetails(this.props.routeParams.databaseID, this.props.routeParams.groupID);
+        await this.props.fetchDatabasePermissions(this.props.routeParams.databaseID, this.props.routeParams.groupID);
+        await this.props.fetchGroups();
     }
 
     render () {

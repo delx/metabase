@@ -591,7 +591,7 @@ CoreServices.factory('Permissions', ['$resource', function($resource) {
                 id: '@id'
             }
         },
-        databaseGroupDetails: {
+        databasePermissions: {
             method: 'GET',
             url: '/api/permissions/database/:databaseID/group/:groupID',
             params: {

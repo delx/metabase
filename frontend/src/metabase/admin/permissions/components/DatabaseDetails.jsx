@@ -6,6 +6,7 @@ import UserAvatar from "metabase/components/UserAvatar.jsx";
 
 import AdminContentTable from "./AdminContentTable.jsx";
 import DatabasesLeftNavPane from "./DatabasesLeftNavPane.jsx";
+import DatabaseGroupSelector from "./DatabaseGroupSelector.jsx";
 import Permissions from "./Permissions.jsx";
 
 
@@ -53,7 +54,7 @@ function SchemasTable({ schemas, database }) {
     );
 }
 
-export default function DatabaseDetails({ location: { pathname }, database, databases }) {
+export default function DatabaseDetails({ location: { pathname }, database, databases, groups }) {
     database = database || {};
     databases = databases || [];
 
@@ -62,6 +63,7 @@ export default function DatabaseDetails({ location: { pathname }, database, data
 
     return (
         <Permissions leftNavPane={<DatabasesLeftNavPane databases={databases} currentPath={pathname} />}>
+            <DatabaseGroupSelector groups={groups} databaseID={database.id} />
             <SchemasTable schemas={database.schemas} database={database} />
         </Permissions>
     );
