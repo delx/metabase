@@ -14,7 +14,7 @@
   "Fetch all `PermissionsGroups`."
   []
   (check-superuser)
-  (db/query {:select    [:pg.id :pg.name [:%count.* :members]]
+  (db/query {:select    [:pg.id :pg.name [:%count.pgm.id :members]]
              :from      [[:permissions_group :pg]]
              :left-join [[:permissions_group_membership :pgm]
                          [:= :pg.id :pgm.group_id]]
