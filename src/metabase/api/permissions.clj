@@ -15,7 +15,7 @@
   "Fetch all `PermissionsGroups`."
   []
   (check-superuser)
-  ;; TODO - this is too complicated, just do normal queries and hydration here?
+  ;; TODO - this is complicated, should we just do normal queries and hydration here?
   (db/query {:select    [:pg.id :pg.name [:%count.pgm.id :members]]
              :from      [[:permissions_group :pg]]
              :left-join [[:permissions_group_membership :pgm]
@@ -33,7 +33,19 @@
   (db/insert! PermissionsGroup
     :name name))
 
-(defn permissions-group-members [group-id])
+;; TODO - should this be moved to `metbabase.models.permission-group`?
+(defn- group-id->databases [group-id]
+  (let [db-id->permissions  (u/key-by :database_id (db/select ['DatabasePermissions :database_id :unrestricted_schema_access :native_query_write_access [:id :permissions_id]]
+                                                     :group_id group-id))
+        db-id->schema-perms (u/key-by :database_id (db/select 'SchemaPermissions
+                                                     :group_id group-id))]
+    (for [db (db/select ['Database [:id :database_id] :name]
+               {:order-by [:%lower.name]})]
+      (merge db
+             (or (db-id->permissions (:database_id db))
+                 {:unrestricted_schema_access false, :native_query_write_access false, :permissions_id nil})
+             {:schemas (or (db-id->schema-perms (:database_id db))
+                           [])}))))
 
 (defendpoint GET "/group/:id"
   "Fetch details for a specific `PermissionsGroup`."
@@ -42,11 +54,7 @@
   ;; TODO - this is too complicated, just do normal queries and hydration here
   (assoc (PermissionsGroup id)
     :members   (group/members {:id id})
-    :databases (db/query {:select   [:d.name [:d.id :database_id] [:dp.id :permissions_id] :unrestricted_schema_access :native_query_write_access]
-                          :from     [[:database_permissions :dp]]
-                          :join     [[:metabase_database :d] [:= :dp.database_id :d.id]]
-                          :where    [:= :dp.group_id id]
-                          :order-by [:%lower.d.name]})))
+    :databases (group-id->databases id)))
 
 (defendpoint POST "/group/:id/user"
   "Add a `User` to a `PermissionsGroup`. Returns updated list of members belonging to the group."
@@ -57,8 +65,6 @@
     :group_id id
     :user_id user_id)
   (group/members {:id id}))
-
-
 
 (defendpoint GET "/database/:id"
   "Fetch details about Permissions for a specific `Database`."

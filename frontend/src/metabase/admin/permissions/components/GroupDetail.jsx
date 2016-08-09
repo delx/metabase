@@ -159,25 +159,28 @@ function MembersTable({ members, userSuggestions, showAddUser, text, selectedUse
 
 // ------------------------------------------------------------ Databases Table ------------------------------------------------------------
 
-function DatabasesListItemTablesListItem({ table }) {
+function DatabasesListItemSchemasListItem({ schema }) {
     return (
         <li className="my1">
-            <Icon name="table2" size={16} className="mr1 text-grey-1" /> {table.name}
+            <Icon name="table2" size={16} className="mr1 text-grey-1" /> {schema.name}
         </li>
     );
 }
 
-function DatabasesListItemTablesList({ tables }) {
+function DatabasesListItemSchemasList({ schemas }) {
     return (
         <ul>
-            {tables && tables.map((table, index) =>
-                <DatabasesListItemTablesListItem key={index} table={table} />
+            {schemas && schemas.map((schema, index) =>
+                <DatabasesListItemSchemasListItem key={index} schema={schema} />
              )}
         </ul>
     );
 }
 
 function DatabasesListItem({ database, group }) {
+    const unrestricted = database.unrestricted_schema_access;
+    const someSchemas = !unrestricted && database.schemas && database.schemas.length;
+
     return (
         <div className="my4 py1">
             <Icon className="Icon text-grey-1" name="database" size={16} />
@@ -186,13 +189,17 @@ function DatabasesListItem({ database, group }) {
             </span>
             <div className="mt3 ml4">
                 <div className="text-bold">
-                    {database.unrestricted ? "Unrestricted" : "Some tables"}
+                    {unrestricted ? "Unrestricted" :
+                     someSchemas  ? "Some schemas" : "No permissions"}
                     <Link to={"/admin/permissions/databases/" + database.database_id + "/groups/" + group.id}
-                          className="no-decoration mx2 link">
+                          className="no-decoration mx2 link"
+                    >
                         Change Settings
                     </Link>
                 </div>
-                <DatabasesListItemTablesList tables={database.tables} />
+                {someSchemas ? (
+                     <DatabasesListItemSchemasList schemas={database.schemas} />
+                ) : null}
             </div>
         </div>
     );
@@ -343,16 +350,6 @@ export default class GroupDetail extends Component {
         users = users || [];
 
         const members = this.state.members || (this.props.group && this.props.group.members) || [];
-
-        // TODO - need read tables coming back from API
-        if (group && group.databases && group.databases.length) {
-            group.databases[0].tables = [
-                {name: "These", id: 1},
-                {name: "Are", id: 2},
-                {name: "Fake", id: 3}
-            ];
-        }
-
         const userSuggestions = this.state.text && this.state.text.length ? this.state.userSuggestions : users;
 
         return (
