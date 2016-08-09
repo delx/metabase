@@ -1,5 +1,6 @@
 (ns metabase.models.permissions-group
-  (:require [metabase.db :as db]
+  (:require [clojure.string :as s]
+            [metabase.db :as db]
             [metabase.models.interface :as i]
             [metabase.util :as u]))
 
@@ -60,5 +61,15 @@
 (defn exists-with-name?
   "Does a `PermissionsGroup` with GROUP-NAME exist in the DB? (case-insensitive)"
   ^Boolean [group-name]
+  {:pre [(u/string-or-keyword? group-name)]}
   (db/exists? PermissionsGroup
     :%lower.name (name group-name)))
+
+(defn members
+  "Return `Users` that belong to PERMISSIONS-GROUP, ordered by their name (case-insensitive)."
+  [{id :id}]
+  {:pre [(integer? id)]}
+  (when-let [user-ids (seq (db/select-field :user_id 'PermissionsGroupMembership :group_id id))]
+    (sort-by (comp :common_name s/lower-case)
+             (db/select 'User
+               :id [:in user-ids]))))

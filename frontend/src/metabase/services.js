@@ -602,6 +602,14 @@ CoreServices.factory('Permissions', ['$resource', function($resource) {
         createGroup: {
             method: 'POST',
             url: '/api/permissions/group'
+        },
+        addUserToGroup: {
+            method: 'POST',
+            url: '/api/permissions/group/:id/user',
+            params: {
+                id: '@id'
+            },
+            isArray: true
         }
     });
 }]);

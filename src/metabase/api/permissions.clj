@@ -5,6 +5,7 @@
             [metabase.api.common :refer :all]
             [metabase.db :as db]
             (metabase.models [database :as database]
+                             [hydrate :refer [hydrate]]
                              [permissions-group :refer [PermissionsGroup], :as group]
                              [permissions-group-membership :refer [PermissionsGroupMembership]])
             [metabase.util :as u]))
@@ -14,6 +15,7 @@
   "Fetch all `PermissionsGroups`."
   []
   (check-superuser)
+  ;; TODO - this is too complicated, just do normal queries and hydration here?
   (db/query {:select    [:pg.id :pg.name [:%count.pgm.id :members]]
              :from      [[:permissions_group :pg]]
              :left-join [[:permissions_group_membership :pgm]
@@ -31,21 +33,30 @@
   (db/insert! PermissionsGroup
     :name name))
 
+(defn permissions-group-members [group-id])
+
 (defendpoint GET "/group/:id"
   "Fetch details for a specific `PermissionsGroup`."
   [id]
   (check-superuser)
+  ;; TODO - this is too complicated, just do normal queries and hydration here
   (assoc (PermissionsGroup id)
-    :members   (db/query {:select   [:u.first_name :u.last_name :u.email [:u.id :user_id] [:pgm.id :membership_id]]
-                          :from     [[:permissions_group_membership :pgm]]
-                          :join     [[:core_user :u] [:= :pgm.user_id :u.id]]
-                          :where    [:= :pgm.group_id id]
-                          :order-by [:pgm.id]})
+    :members   (group/members {:id id})
     :databases (db/query {:select   [:d.name [:d.id :database_id] [:dp.id :permissions_id] :unrestricted_schema_access :native_query_write_access]
                           :from     [[:database_permissions :dp]]
                           :join     [[:metabase_database :d] [:= :dp.database_id :d.id]]
                           :where    [:= :dp.group_id id]
                           :order-by [:%lower.d.name]})))
+
+(defendpoint POST "/group/:id/user"
+  "Add a `User` to a `PermissionsGroup`. Returns updated list of members belonging to the group."
+  [id, :as {{:keys [user_id]} :body}]
+  {user_id [Required Integer]}
+  (check-superuser)
+  (db/insert! PermissionsGroupMembership
+    :group_id id
+    :user_id user_id)
+  (group/members {:id id}))
 
 
 

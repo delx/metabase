@@ -4,6 +4,8 @@ import { Link } from "react-router";
 import _ from "underscore";
 import cx from "classnames";
 
+import { AngularResourceProxy } from "metabase/lib/redux";
+
 import Icon from "metabase/components/Icon.jsx";
 import Input from "metabase/components/Input.jsx";
 import Popover from "metabase/components/Popover.jsx";
@@ -12,6 +14,9 @@ import UserAvatar from "metabase/components/UserAvatar.jsx";
 import AdminContentTable from "./AdminContentTable.jsx";
 import Permissions from "./Permissions.jsx";
 import { LeftNavPane, LeftNavPaneItem, LeftNavPaneItemBack } from "./LeftNavPane.jsx";
+
+
+const PermissionsAPI = new AngularResourceProxy("Permissions", ["addUserToGroup"]);
 
 
 // ------------------------------------------------------------ Title & Nav ------------------------------------------------------------
@@ -131,7 +136,7 @@ function UserRow({ user, onRemoveUserClicked }) {
     );
 }
 
-function MembersTable({ group, userSuggestions, showAddUser, text, selectedUser, onAddUserCancel, onAddUserDone, onAddUserTextChange,
+function MembersTable({ members, userSuggestions, showAddUser, text, selectedUser, onAddUserCancel, onAddUserDone, onAddUserTextChange,
                         onUserSuggestionAccepted, onAddUserUpPressed, onAddUserDownPressed, onRemoveUserClicked }) {
 
     return (
@@ -143,7 +148,7 @@ function MembersTable({ group, userSuggestions, showAddUser, text, selectedUser,
                                 onTextChange={onAddUserTextChange} onSuggestionAccepted={onUserSuggestionAccepted}
                      />
                  ) : null}
-                {group.members && group.members.map((user, index) =>
+                {members && members.map((user, index) =>
                     <UserRow key={index} user={user} onRemoveUserClicked={onRemoveUserClicked} />
                 )}
             </AdminContentTable>
@@ -226,7 +231,8 @@ export default class GroupDetail extends Component {
             addUserVisible: false,
             text: "",
             selectedUser: null,
-            userSuggestions: []
+            userSuggestions: [],
+            members: null
         };
     }
 
@@ -249,7 +255,17 @@ export default class GroupDetail extends Component {
     onAddUserDone() {
         console.log("onAddUserDone(", this.state.selectedUser, ")"); // NOCOMMIT
 
-        alert('TODO: add user ' + this.state.selectedUser.id + ' to group ' + this.props.group.id); // NOCOMMIT
+        PermissionsAPI.addUserToGroup({id: this.props.group.id, user_id: this.state.selectedUser.id}).then((function(newMembers) {
+            console.log("newMembers:", newMembers); // NOCOMMIT
+            this.setState({
+                members: newMembers,
+                addUserVisible: false,
+                text: "",
+                selectedUser: null
+            });
+        }).bind(this), function(error) {
+            console.error("Error adding user:", error);
+        });
     }
 
     indexOfSelectedUser() {
@@ -319,11 +335,14 @@ export default class GroupDetail extends Component {
     }
 
     render() {
+        // users = array of all users for purposes of adding new users to group
+        // [group.]members = array of users currently in the group
         let { location: { pathname }, group, groups, users } = this.props;
-
         group = group || {};
         groups = groups || [];
         users = users || [];
+
+        const members = this.state.members || (this.props.group && this.props.group.members) || [];
 
         // TODO - need read tables coming back from API
         if (group && group.databases && group.databases.length) {
@@ -341,7 +360,7 @@ export default class GroupDetail extends Component {
                 <Title group={group} addUserVisible={this.state.addUserVisible}
                        onAddUsersClicked={this.onAddUsersClicked.bind(this)}
                 />
-                <MembersTable group={group} userSuggestions={userSuggestions} showAddUser={this.state.addUserVisible} text={this.state.text} selectedUser={this.state.selectedUser}
+                <MembersTable members={members} userSuggestions={userSuggestions} showAddUser={this.state.addUserVisible} text={this.state.text} selectedUser={this.state.selectedUser}
                               onAddUserCancel={this.onAddUserCanceled.bind(this)}
                               onAddUserDone={this.onAddUserDone.bind(this)}
                               onAddUserTextChange={this.onAddUserTextChange.bind(this)}

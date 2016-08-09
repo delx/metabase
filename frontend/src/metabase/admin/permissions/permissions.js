@@ -32,8 +32,6 @@ export const fetchDatabasePermissions = makeThunkActionHandler(FETCH_DATABASE_PE
                                                                (databaseID, groupID) => [{databaseID: databaseID, groupID: groupID}]);
 export const fetchUsers = makeThunkActionHandler(PERMISSIONS_FETCH_USERS, UsersAPI.list);
 
-console.log('UsersAPI:', UsersAPI);
-
 function makeActionHandler(actionType) {
     return handleActions({
         [actionType]: {
