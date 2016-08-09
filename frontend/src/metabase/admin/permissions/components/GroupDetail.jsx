@@ -13,21 +13,21 @@ import AdminContentTable from "./AdminContentTable.jsx";
 import Permissions from "./Permissions.jsx";
 import { LeftNavPane, LeftNavPaneItem, LeftNavPaneItemBack } from "./LeftNavPane.jsx";
 
-// todo - make title + button properties of Permissions since several pages use it
-function Title({ group }) {
+
+// ------------------------------------------------------------ Title & Nav ------------------------------------------------------------
+
+function Title({ group, addUserVisible, onAddUsersClicked }) {
     return (
         <section className="PageHeader clearfix">
-            <Link to={"/admin/permissions/groups/" + group.id + "?addMember=true"}
-                  className="Button Button--primary float-right">
+            <button className={cx("Button float-right", {"Button--primary": !addUserVisible})} disabled={addUserVisible} onClick={onAddUsersClicked}>
                 Add members
-            </Link>
+            </button>
             <h2 className="PageTitle">
                 {group.name}
             </h2>
         </section>
     );
 }
-
 
 function NavPane({ groups, currentPath }) {
     return (
@@ -43,110 +43,116 @@ function NavPane({ groups, currentPath }) {
     );
 }
 
-function addMember(groupID, user) {
-    alert('TODO: add user ' + user.id + ' to group ' + groupID);
+
+// ------------------------------------------------------------ Add User Row / Autocomplete ------------------------------------------------------------
+
+function AddMemberAutocompleteSuggestion({ user, color, selected, onClick }) {
+    return (
+        <div className={cx("px2 py1 cursor-pointer", {"bg-brand": selected})} onClick={onClick} >
+            <span className="inline-block text-white mr2">
+                <UserAvatar background={color} user={user} />
+            </span>
+            <span className={cx("h3", {"text-white": selected})}>
+                {user.common_name}
+            </span>
+        </div>
+    );
 }
 
-function AddMemberAutocompleteSuggestions({ groupID, users, selectedUserID }) {
-    const COLORS = ['bg-error', 'bg-purple', 'bg-brand', 'bg-gold', 'bg-green'];
-    console.log('users:', users);
+const COLORS = ['bg-error', 'bg-purple', 'bg-brand', 'bg-gold', 'bg-green'];
+
+function AddMemberAutocompleteSuggestions({ suggestions, selectedUser, onSuggestionAccepted }) {
     return (
-        <Popover className="bordered" hasArrow={false} targetOffsetX={-100} targetOffsetY={2}>
-            {users && users.map((user, index) => {
-                 const color =  COLORS[(index % COLORS.length)];
-                 return (
-                     <div key={index} className="m2 cursor-pointer" onClick={() => addMember(groupID, user)}>
-                         <span className="inline-block text-white mr2">
-                             <UserAvatar background={color} user={user} />
-                         </span>
-                         <span className="h3">
-                             {user.common_name}
-                         </span>
-                     </div>
-                 );
-             })}
+        <Popover className="bordered" hasArrow={false} targetOffsetY={2} horizontalAttachments={["left"]}>
+            {suggestions && suggestions.map((user, index) =>
+                <AddMemberAutocompleteSuggestion key={index} user={user} color={COLORS[(index % COLORS.length)]}
+                                                 selected={selectedUser && user.id === selectedUser.id}
+                                                 onClick={onSuggestionAccepted.bind(null, user)} />
+             )}
         </Popover>
     );
 }
 
-function filterUsers(users, text) {
-    console.log('filterUsers(', users, text, ')');
+/* const KEYCODE_TAB   =  9;*/
+const KEYCODE_ENTER = 13;
+const KEYCODE_UP    = 38;
+const KEYCODE_DOWN  = 40;
 
-    if (!text || !text.length) return users;
+function AddUserRow({ suggestions, text, selectedUser, onCancel, onDone, onDownPressed, onUpPressed, onTextChange, onSuggestionAccepted }) {
 
-    text = text.toLowerCase();
-    return _.filter(users, (user) => user.common_name && user.common_name.toLowerCase().includes(text));
-}
+    const showAutoComplete = suggestions && suggestions.length;
 
-class AddMemberRow extends Component {
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            text: "",
-            suggestions: [],
-            selectedUserID: null
+    function onKeyDown(e) {
+        if (e.keyCode !== KEYCODE_UP && e.keyCode !== KEYCODE_DOWN && e.keyCode !== KEYCODE_ENTER) return;
+
+        e.preventDefault();
+        switch (e.keyCode) {
+            case KEYCODE_UP: onUpPressed(); return;
+            case KEYCODE_DOWN: onDownPressed(); return;
+            case KEYCODE_ENTER: onSuggestionAccepted(selectedUser); return;
         }
     }
 
-    updateText(newText) {
-        console.log('updateText!', newText);
-        // TODO - autocomplete suggestions
-        this.setState({
-            text: newText
-        });
-    }
-
-    render() {
-        const validUserSelected = !!this.state.selectedUserID;
-        const filteredUsers = filterUsers(this.props.users, this.state.text);
-        return (
-            <tr className="bordered border-brand rounded">
-                <td>
-                    <AddMemberAutocompleteSuggestions users={filteredUsers} groupID={this.props.group.id} />
-                    <Input className="AdminInput h3" type="text" placeholder="Julie McMemberson" value={this.state.text}
-                           onChange={(e) => this.updateText(e.target.value)} />
-                </td>
-                <td />
-                <td className="text-right">
-                    <Link to={"/admin/permissions/groups/" + this.props.group.id}
-                          className="link no-decoration cursor-pointer">
-                        Cancel
-                    </Link>
-                    <button className={cx("Button ml2", {"Button--primary": validUserSelected})} disabled={!validUserSelected}
-                            onClick={() => addMember(this.props.group.id, this.state.text)}>
-                        Done
-                    </button>
-                </td>
-            </tr>
-        );
-    }
+    return (
+        <tr className="bordered border-brand rounded">
+            <td>
+                <Input className="AdminInput h3" type="text" placeholder="Julie McMemberson" value={text}
+                       onKeyDown={onKeyDown} onChange={(e) => onTextChange(e.target.value)}
+                />
+                {showAutoComplete ? (
+                     <AddMemberAutocompleteSuggestions suggestions={suggestions} selectedUser={selectedUser} onSuggestionAccepted={onSuggestionAccepted} />
+                 ) : null}
+            </td>
+            <td />
+            <td className="text-right">
+                <span className="link no-decoration cursor-pointer" onClick={onCancel}>
+                    Cancel
+                </span>
+                <button className={cx("Button ml2", {"Button--primary": !!selectedUser})} disabled={!selectedUser} onClick={onDone}>
+                    Done
+                </button>
+            </td>
+        </tr>
+    );
 }
 
-function MemberRow({ member }) {
+
+// ------------------------------------------------------------ Users Table ------------------------------------------------------------
+
+function UserRow({ user, onRemoveUserClicked }) {
     return (
         <tr>
-            <td>{member.first_name + " " + member.last_name}</td>
-            <td>{member.email}</td>
-            <td className="text-right cursor-pointer" onClick={alert.bind(null, 'TODO: remove user!')}>
+            <td>{user.first_name + " " + user.last_name}</td>
+            <td>{user.email}</td>
+            <td className="text-right cursor-pointer" onClick={onRemoveUserClicked.bind(null, user)}>
                 <Icon name="close" className="text-grey-1" size={16} />
             </td>
         </tr>
     );
 }
 
-function MembersTable({ members, group, showAddMemberRow, users }) {
+function MembersTable({ group, userSuggestions, showAddUser, text, selectedUser, onAddUserCancel, onAddUserDone, onAddUserTextChange,
+                        onUserSuggestionAccepted, onAddUserUpPressed, onAddUserDownPressed, onRemoveUserClicked }) {
+
     return (
-        <AdminContentTable columnTitles={["Members", "Email"]}>
-            {showAddMemberRow ? (
-                 <AddMemberRow group={group} users={users} />
-             ) : null}
-            {members && members.map((member, index) =>
-                <MemberRow key={index} member={member} />
-             )}
-        </AdminContentTable>
+        <div>
+            <AdminContentTable columnTitles={["Members", "Email"]}>
+                {showAddUser ? (
+                    <AddUserRow suggestions={userSuggestions} text={text} selectedUser={selectedUser} onCancel={onAddUserCancel}
+                                onDone={onAddUserDone} onDownPressed={onAddUserDownPressed} onUpPressed={onAddUserUpPressed}
+                                onTextChange={onAddUserTextChange} onSuggestionAccepted={onUserSuggestionAccepted}
+                     />
+                 ) : null}
+                {group.members && group.members.map((user, index) =>
+                    <UserRow key={index} user={user} onRemoveUserClicked={onRemoveUserClicked} />
+                )}
+            </AdminContentTable>
+        </div>
     );
 }
 
+
+// ------------------------------------------------------------ Databases Table ------------------------------------------------------------
 
 function DatabasesListItemTablesListItem({ table }) {
     return (
@@ -201,27 +207,151 @@ function DatabasesList({ group, databases }) {
 }
 
 
-function GroupDetail({ location: { pathname, query }, group, groups, users }) {
-    group = group || {};
-    groups = groups || [];
-    users = users || [];
+// ------------------------------------------------------------ Logic ------------------------------------------------------------
 
-    if (group && group.databases && group.databases.length) {
-        group.databases[0].tables = [
-            {name: "These", id: 1},
-            {name: "Are", id: 2},
-            {name: "Fake", id: 3}
-        ];
-    }
+function filterUsers(users, text) {
+    console.log('filterUsers(', users, text, ')');
 
-    return (
-        <Permissions leftNavPane={<NavPane groups={groups} currentPath={pathname} />}>
-            <Title group={group} />
-            <MembersTable members={group.members} group={group} showAddMemberRow={query.addMember === "true"} users={users} />
-            <DatabasesList group={group} databases={group.databases} />
-        </Permissions>
-    );
+    if (!text || !text.length) return users;
+
+    text = text.toLowerCase();
+    return _.filter(users, (user) => user.common_name && user.common_name.toLowerCase().includes(text));
 }
 
 
-export default GroupDetail;
+export default class GroupDetail extends Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            addUserVisible: false,
+            text: "",
+            selectedUser: null,
+            userSuggestions: []
+        };
+    }
+
+    onAddUsersClicked() {
+        console.log('onAddUsersClicked()'); // NOCOMMIT
+        this.setState({
+            addUserVisible: true
+        });
+    }
+
+    onAddUserCanceled() {
+        console.log("onAddUserCanceled()"); // NOCOMMIT
+        this.setState({
+            addUserVisible: false,
+            text: "",
+            selectedUser: null
+        });
+    }
+
+    onAddUserDone() {
+        console.log("onAddUserDone(", this.state.selectedUser, ")"); // NOCOMMIT
+
+        alert('TODO: add user ' + this.state.selectedUser.id + ' to group ' + this.props.group.id); // NOCOMMIT
+    }
+
+    indexOfSelectedUser() {
+        return _.findIndex(this.state.userSuggestions, (user) => user.id === this.state.selectedUser.id);
+    }
+
+    setSelectedUserIndex(newIndex) {
+        const numSuggestions = this.state.userSuggestions.length;
+        if (newIndex < 0) newIndex = numSuggestions - 1;
+        if (newIndex >= numSuggestions) newIndex = 0;
+
+        this.setState({
+            selectedUser: this.state.userSuggestions[newIndex]
+        });
+    }
+
+    onAddUserUpPressed() {
+        console.log("onAddUserUpPressed()"); // NOCOMMIT
+
+        if (!this.state.userSuggestions.length) return;
+
+        if (!this.state.selectedUser) {
+            this.setState({
+                selectedUser: this.state.userSuggestions[(this.state.userSuggestions.length - 1)]
+            });
+            return;
+        }
+
+        this.setSelectedUserIndex(this.indexOfSelectedUser() - 1);
+    }
+
+    onAddUserDownPressed() {
+        console.log("onAddUserDownPressed()"); // NOCOMMIT
+
+        if (!this.state.userSuggestions.length) return;
+
+        if (!this.state.selectedUser) {
+            this.setState({
+                selectedUser: this.state.userSuggestions[0]
+            });
+            return;
+        }
+
+        this.setSelectedUserIndex(this.indexOfSelectedUser() + 1);
+    }
+
+    onAddUserTextChange(newText) {
+        console.log("onAddUserTextChange(", newText, ")");
+        this.setState({
+            text: newText,
+            userSuggestions: filterUsers(this.props.users, newText)
+        });
+    }
+
+    onUserSuggestionAccepted(user) {
+        console.log("onUserSuggestionAccepted(", user, ")"); // NOCOMMIT
+
+        this.setState({
+            selectedUser: user,
+            text: user.common_name,
+            userSuggestions: []
+        });
+    }
+
+    onRemoveUserClicked(user) {
+        console.log("onRemoveUserClicked(", user, ")"); // NOCOMMIT
+    }
+
+    render() {
+        let { location: { pathname }, group, groups, users } = this.props;
+
+        group = group || {};
+        groups = groups || [];
+        users = users || [];
+
+        // TODO - need read tables coming back from API
+        if (group && group.databases && group.databases.length) {
+            group.databases[0].tables = [
+                {name: "These", id: 1},
+                {name: "Are", id: 2},
+                {name: "Fake", id: 3}
+            ];
+        }
+
+        const userSuggestions = this.state.text && this.state.text.length ? this.state.userSuggestions : users;
+
+        return (
+            <Permissions leftNavPane={<NavPane groups={groups} currentPath={pathname} />}>
+                <Title group={group} addUserVisible={this.state.addUserVisible}
+                       onAddUsersClicked={this.onAddUsersClicked.bind(this)}
+                />
+                <MembersTable group={group} userSuggestions={userSuggestions} showAddUser={this.state.addUserVisible} text={this.state.text} selectedUser={this.state.selectedUser}
+                              onAddUserCancel={this.onAddUserCanceled.bind(this)}
+                              onAddUserDone={this.onAddUserDone.bind(this)}
+                              onAddUserTextChange={this.onAddUserTextChange.bind(this)}
+                              onUserSuggestionAccepted={this.onUserSuggestionAccepted.bind(this)}
+                              onAddUserUpPressed={this.onAddUserUpPressed.bind(this)}
+                              onAddUserDownPressed={this.onAddUserDownPressed.bind(this)}
+                              onRemoveUserClicked={this.onRemoveUserClicked.bind(this)}
+                />
+                <DatabasesList group={group} databases={group.databases} />
+            </Permissions>
+        );
+    }
+}
