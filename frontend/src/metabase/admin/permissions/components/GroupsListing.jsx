@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from "react";
 import { Link } from "react-router";
 
 import Icon from "metabase/components/Icon.jsx";
+import Input from "metabase/components/Input.jsx";
 import PopoverWithTrigger from "metabase/components/PopoverWithTrigger.jsx";
 import UserAvatar from "metabase/components/UserAvatar.jsx";
 
@@ -33,14 +34,33 @@ function ActionsPopover({ group }) {
     )
 }
 
-function Group({ group, index, showGroupDetail }) {
+function AddGroupRow() {
+    return (
+        <tr className="bordered border-brand rounded">
+            <td>
+                <Input className="AdminInput h3" type="text" placeholder="Justice League" />
+            </td>
+            <td />
+            <td className="text-right">
+                <Link to="/admin/permissions/groups/" className="link no-decoration cursor-pointer">
+                    Cancel
+                </Link>
+                <span className="Button text-grey-2 ml2">
+                    Create
+                </span>
+            </td>
+        </tr>
+    );
+}
+
+function GroupRow({ group, index, showGroupDetail, showAddGroupRow }) {
     const COLORS = ['bg-error', 'bg-purple', 'bg-brand', 'bg-gold', 'bg-green'],
           color  = COLORS[(index % COLORS.length)];
 
     return (
         <tr>
             <td>
-                <Link to={"/admin/permissions/groups/" + group.id} className="link no-decoration">
+                <Link to={"/admin/permissions/groups" + group.id} className="link no-decoration">
                     <span className="text-white inline-block">
                         <UserAvatar background={color} user={{first_name: group.name}} />
                     </span>
@@ -59,16 +79,25 @@ function Group({ group, index, showGroupDetail }) {
     );
 }
 
-function GroupsListing({ location: { pathname }, groups }) {
+function GroupsTable({ groups, showAddGroupRow }) {
+    return (
+        <AdminContentTable columnTitles={["Group name", "Members"]} >
+            {showAddGroupRow ? (
+                 <AddGroupRow />
+             ) : null}
+            {groups && groups.map((group, index) =>
+                <GroupRow key={group.id} group={group} index={index} />
+             )}
+        </AdminContentTable>
+    );
+}
+
+function GroupsListing({ location: { pathname, query }, groups }) {
     return (
         <Permissions leftNavPane={<TopLevelLeftNavPane currentPath={pathname} />}
                      rightTitleButtonTitle="Create a group"
-                     rightTitleButtonLink="/admin/permissions/groups/create">
-            <AdminContentTable columnTitles={["Group name", "Members"]} >
-                {groups && groups.map((group, index) =>
-                    <Group key={group.id} group={group} index={index} />
-                 )}
-            </AdminContentTable>
+                     rightTitleButtonLink="/admin/permissions/groups?addGroup=true">
+            <GroupsTable groups={groups} showAddGroupRow={query.addGroup === "true" }/>
         </Permissions>
     );
 }

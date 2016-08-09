@@ -138,7 +138,6 @@ function DatabasesList({ group, databases }) {
 
 
 function GroupDetail({ location: { pathname, query }, group, groups }) {
-    console.log('query = ', query);
     group = group || {};
     groups = groups || [];
 
