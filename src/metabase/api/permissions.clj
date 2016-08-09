@@ -91,9 +91,14 @@
   "Get details about the permissions for a specific Group for a specific Database."
   [database-id group-id]
   (check-superuser)
-  (let [db-perms           (db/select-one 'DatabasePermissions
-                             :database_id database-id
-                             :group_id    group-id)
+  (let [db-perms           (or (db/select-one 'DatabasePermissions
+                                 :database_id database-id
+                                 :group_id    group-id)
+                               {:database_id                database-id
+                                :group_id                   group-id
+                                :unrestricted_schema_access false
+                                :native_query_write_access  false
+                                :id                         nil})
         schema-name->perms (when-not (:unrestricted_schema_access db-perms)
                              (u/key-by :schema (db/select 'SchemaPermissions :database_id 1, :group_id 1)))]
     (assoc db-perms
