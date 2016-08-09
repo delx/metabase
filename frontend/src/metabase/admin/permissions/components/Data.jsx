@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from "react";
 import { Link } from "react-router";
 
+import Icon from "metabase/components/Icon.jsx";
+
 import Permissions from "./Permissions.jsx";
 import TopLevelLeftNavPane from "./TopLevelLeftNavPane.jsx";
 
@@ -17,10 +19,11 @@ function Title() {
 function DatabaseListItem( { database }) {
     return (
         <li>
-            <Link to={"/admin/permissions/databases/" + database.id} className="link no-decoration">
-                <h3>
+            <Link to={"/admin/permissions/databases/" + database.id} className="no-decoration">
+                <Icon className="Icon text-grey-1" name="database" size={24} />
+                <span className="mx4 text-bold">
                     {database.name}
-                </h3>
+                </span>
             </Link>
         </li>
     );
