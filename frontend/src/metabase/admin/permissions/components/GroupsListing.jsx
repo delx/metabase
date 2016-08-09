@@ -1,5 +1,7 @@
-import React, { Component, PropTypes } from "react";
+import React, { Component } from "react";
 import { Link } from "react-router";
+
+import cx from "classnames";
 
 import Icon from "metabase/components/Icon.jsx";
 import Input from "metabase/components/Input.jsx";
@@ -20,8 +22,7 @@ function removeGroup(group) {
 
 function ActionsPopover({ group }) {
     return (
-        <PopoverWithTrigger className="block"
-                            triggerElement={<span className="text-grey-1"><Icon name={'ellipsis'}></Icon></span>}>
+        <PopoverWithTrigger className="block" triggerElement={<Icon className="text-grey-1" name="ellipsis" />}>
             <ul className="UserActionsSelect">
                 <li className="pt1 pb2 px2 bg-brand-hover text-white-hover cursor-pointer" onClick={editGroup.bind(null, group)}>
                     Edit Name
@@ -34,23 +35,44 @@ function ActionsPopover({ group }) {
     )
 }
 
-function AddGroupRow() {
-    return (
-        <tr className="bordered border-brand rounded">
-            <td>
-                <Input className="AdminInput h3" type="text" placeholder="Justice League" />
-            </td>
-            <td />
-            <td className="text-right">
-                <Link to="/admin/permissions/groups/" className="link no-decoration cursor-pointer">
-                    Cancel
-                </Link>
-                <span className="Button text-grey-2 ml2">
-                    Create
-                </span>
-            </td>
-        </tr>
-    );
+function createGroup(groupName) {
+    alert('TODO: create group: ' + groupName);
+}
+
+class AddGroupRow extends Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            text: ""
+        }
+    }
+
+    updateText(newText) {
+        console.log('updateText!', newText); // NOCOMMIT
+        this.setState({
+            text: newText
+        });
+    }
+
+    render() {
+        const textIsValid = this.state.text && this.state.text.length;
+        return (
+            <tr className="bordered border-brand rounded">
+                <td>
+                    <Input className="AdminInput h3" type="text" placeholder="Justice League" onChange={(e) => this.updateText(e.target.value)} value={this.state.text} />
+                </td>
+                <td />
+                <td className="text-right">
+                    <Link to="/admin/permissions/groups/" className="link no-decoration cursor-pointer">
+                        Cancel
+                    </Link>
+                    <button className={cx("Button ml2", {"Button--primary": textIsValid})} disabled={!textIsValid} onClick={() => createGroup(this.state.text)}>
+                        Create
+                    </button>
+                </td>
+            </tr>
+        );
+    }
 }
 
 function GroupRow({ group, index, showGroupDetail, showAddGroupRow }) {
@@ -92,7 +114,7 @@ function GroupsTable({ groups, showAddGroupRow }) {
     );
 }
 
-function GroupsListing({ location: { pathname, query }, groups }) {
+export default function GroupsListing({ location: { pathname, query }, groups }) {
     return (
         <Permissions leftNavPane={<TopLevelLeftNavPane currentPath={pathname} />}
                      rightTitleButtonTitle="Create a group"
@@ -101,5 +123,3 @@ function GroupsListing({ location: { pathname, query }, groups }) {
         </Permissions>
     );
 }
-
-export default GroupsListing;
