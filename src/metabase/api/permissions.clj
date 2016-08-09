@@ -1,14 +1,15 @@
 (ns metabase.api.permissions
   "/api/permissions endpoints."
   (:require [clojure.string :as s]
-            [compojure.core :refer [GET]]
+            [compojure.core :refer [GET POST]]
             [metabase.api.common :refer :all]
             [metabase.db :as db]
             (metabase.models [database :as database]
-                             [permissions-group :refer [PermissionsGroup]]
+                             [permissions-group :refer [PermissionsGroup], :as group]
                              [permissions-group-membership :refer [PermissionsGroupMembership]])
             [metabase.util :as u]))
 
+;; TODO - should be GET /api/permissions/group
 (defendpoint GET "/groups"
   "Fetch all `PermissionsGroups`."
   []
@@ -19,6 +20,16 @@
                          [:= :pg.id :pgm.group_id]]
              :group-by  [:pg.id :pg.name]
              :order-by  [:%lower.pg.name]}))
+
+(defendpoint POST "/group"
+  "Create a new `PermissionsGroup`."
+  [:as {{:keys [name]} :body}]
+  {name [Required NonEmptyString]}
+  (println "(group/exists-with-name?" name ") ->" (group/exists-with-name? name))
+  (check (not (group/exists-with-name? name))
+    400 "A group with that name already exists.")
+  (db/insert! PermissionsGroup
+    :name name))
 
 (defendpoint GET "/group/:id"
   "Fetch details for a specific `PermissionsGroup`."

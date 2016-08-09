@@ -55,3 +55,10 @@
   i/IEntity (merge i/IEntityDefaults
                    {:pre-cascade-delete pre-cascade-delete
                     :pre-update         pre-update}))
+
+
+(defn exists-with-name?
+  "Does a `PermissionsGroup` with GROUP-NAME exist in the DB? (case-insensitive)"
+  ^Boolean [group-name]
+  (db/exists? PermissionsGroup
+    :%lower.name (name group-name)))

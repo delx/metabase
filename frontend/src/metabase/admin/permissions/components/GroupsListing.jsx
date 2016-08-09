@@ -1,7 +1,11 @@
 import React, { Component } from "react";
-import { Link } from "react-router";
+import { Link, browserHistory } from "react-router";
+import { push } from "react-router-redux";
 
 import cx from "classnames";
+
+import { AngularResourceProxy } from "metabase/lib/redux";
+import { getStore } from 'metabase/store'
 
 import Icon from "metabase/components/Icon.jsx";
 import Input from "metabase/components/Input.jsx";
@@ -11,6 +15,9 @@ import UserAvatar from "metabase/components/UserAvatar.jsx";
 import AdminContentTable from "./AdminContentTable.jsx";
 import Permissions from "./Permissions.jsx";
 import TopLevelLeftNavPane from "./TopLevelLeftNavPane.jsx";
+
+
+const PermissionsAPI = new AngularResourceProxy("Permissions", ["createGroup"]);
 
 function editGroup(group) {
     alert('TODO: edit group: ' + group.id);
@@ -36,7 +43,12 @@ function ActionsPopover({ group }) {
 }
 
 function createGroup(groupName) {
-    alert('TODO: create group: ' + groupName);
+    PermissionsAPI.createGroup({name: groupName}).then(function() {
+        const store = getStore(browserHistory);
+        store.dispatch(push("/admin/permissions/groups"));
+    }, function(error) {
+        console.error('Error creating group:', error);
+    });
 }
 
 class AddGroupRow extends Component {
@@ -82,7 +94,7 @@ function GroupRow({ group, index, showGroupDetail, showAddGroupRow }) {
     return (
         <tr>
             <td>
-                <Link to={"/admin/permissions/groups" + group.id} className="link no-decoration">
+                <Link to={"/admin/permissions/groups/" + group.id} className="link no-decoration">
                     <span className="text-white inline-block">
                         <UserAvatar background={color} user={{first_name: group.name}} />
                     </span>

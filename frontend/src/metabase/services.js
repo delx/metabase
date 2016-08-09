@@ -598,6 +598,10 @@ CoreServices.factory('Permissions', ['$resource', function($resource) {
                 databaseID: '@databaseID',
                 groupID: '@groupID'
             }
+        },
+        createGroup: {
+            method: 'POST',
+            url: '/api/permissions/group'
         }
     });
 }]);

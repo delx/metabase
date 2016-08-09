@@ -724,6 +724,7 @@
   "Easy way to see if something exists in the DB.
     (db/exists? User :id 100)
    NOTE: This only works for objects that have an `:id` field."
+  {:style/indent 1}
   ^Boolean [entity & kvs]
   (boolean (select-one entity (apply where (h/select {} :id) kvs))))
 

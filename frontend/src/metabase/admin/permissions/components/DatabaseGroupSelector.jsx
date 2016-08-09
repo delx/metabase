@@ -1,9 +1,8 @@
 import React from "react";
-
 import { browserHistory } from "react-router";
 import { push } from "react-router-redux";
 
-import { getStore } from 'metabase/store'
+import { getStore } from 'metabase/store';
 
 function selectGroup(databaseID, groupID) {
     if (groupID === "all") groupID = null;
