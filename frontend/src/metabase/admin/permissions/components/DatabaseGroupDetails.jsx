@@ -131,9 +131,6 @@ export default class DatabaseGroupDetails extends Component {
         const perms = this.state.databasePermissions || databasePermissions || {};
         console.log("perms:", perms); // NOCOMMIT
 
-        const nativeQueryPerms = perms.native_query_write_access;
-        const unrestrictedSchemaPerms = perms.unrestricted_schema_access;
-
         return (
             <Permissions leftNavPane={<DatabasesLeftNavPane databases={databases} currentPath={pathname} />}>
                 <DatabaseGroupSelector groups={groups} selectedGroupID={perms.group_id} databaseID={perms.database_id} />

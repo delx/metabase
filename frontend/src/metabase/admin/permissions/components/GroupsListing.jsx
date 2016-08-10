@@ -115,7 +115,7 @@ function GroupRow({ group, index, showGroupDetail, showAddGroupRow }) {
 
 function GroupsTable({ groups, showAddGroupRow }) {
     return (
-        <AdminContentTable columnTitles={["Group name", "Members"]} >
+        <AdminContentTable columnTitles={["Group name", "Members"]}>
             {showAddGroupRow ? (
                  <AddGroupRow />
              ) : null}
