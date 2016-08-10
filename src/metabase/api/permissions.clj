@@ -87,28 +87,42 @@
                               :access (when (:unrestricted_schema_access db-perms)
                                         "All tables"))))})}))
 
+(defn- access-type [db-perms]
+  (cond
+    (and (:unrestricted_schema_access db-perms)
+         (:native_query_write_acecss db-perms)) :unrestricted
+    (:unrestricted_schema_access db-perms)      :all_schemas
+    (nil? db-perms)                             :no_access
+    :else                                       :some_schemas))
+
+;; TODO - need to include tables
 (defendpoint GET "/database/:database-id/group/:group-id"
   "Get details about the permissions for a specific Group for a specific Database."
   [database-id group-id]
   (check-superuser)
-  (let [db-perms           (or (db/select-one 'DatabasePermissions
-                                 :database_id database-id
-                                 :group_id    group-id)
-                               {:database_id                database-id
-                                :group_id                   group-id
-                                :unrestricted_schema_access false
-                                :native_query_write_access  false
-                                :id                         nil})
-        schema-name->perms (when-not (:unrestricted_schema_access db-perms)
-                             (u/key-by :schema (db/select 'SchemaPermissions :database_id 1, :group_id 1)))]
-    (assoc db-perms
-      :schemas (for [schema-name (sort-by (comp s/lower-case :name)
-                                          (database/schemas {:id database-id}))]
-                 {:name schema-name
-                  :access (if (:unrestricted_schema_access db-perms)
-                            "All tables"
-                            (schema-name->perms schema-name))}))))
-
+  (let [db-perms           (db/select-one 'DatabasePermissions
+                             :database_id database-id
+                             :group_id    group-id)
+        schema-name->perms (u/key-by :schema
+                             (when (and db-perms
+                                        (not (:unrestricted_schema_access db-perms)))
+                               (db/select 'SchemaPermissions :database_id database-id, :group_id group-id)))
+        schema-names       (database/schema-names {:id database-id})]
+    (assoc (or db-perms
+               {:database_id                database-id
+                :group_id                   group-id
+                :unrestricted_schema_access false
+                :native_query_write_access  false
+                :id                         nil})
+      :access_type (access-type db-perms)
+      :schemas     (for [schema-name schema-names
+                         :let        [schema-perms (schema-name->perms schema-name)]]
+                     (assoc schema-perms
+                       :name        schema-name
+                       :access_type (cond
+                                      (:unrestricted_schema_access db-perms) :all_tables
+                                      schema-perms                           :some_tables
+                                      :else                                  :no_access))))))
 
 
 (define-routes)

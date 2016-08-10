@@ -1,5 +1,6 @@
 (ns metabase.models.database
-  (:require [cheshire.generate :refer [add-encoder encode-map]]
+  (:require [clojure.string :as s]
+            [cheshire.generate :refer [add-encoder encode-map]]
             [metabase.api.common :refer [*current-user*]]
             [metabase.db :as db]
             (metabase.models [interface :as i]
@@ -53,12 +54,14 @@
   [{:keys [id]}]
   (db/select 'Table, :db_id id, :active true, {:order-by [[:display_name :asc]]}))
 
-(defn schemas
-  "Return a set of schema names (as string) associated with this `Database`."
+(defn schema-names
+  "Return a *sorted set* of schema names (as strings) associated with this `Database`."
   [{:keys [id]}]
-  (db/select-field :schema 'Table
-    :db_id id
-    {:modifiers [:DISTINCT]}))
+  (when id
+    (apply sorted-set (sort-by (comp s/lower-case :name)
+                               (db/select-field :schema 'Table
+                                 :db_id id
+                                 {:modifiers [:DISTINCT]})))))
 
 
 (add-encoder DatabaseInstance (fn [db json-generator]

@@ -8,13 +8,6 @@ import DatabaseGroupSelector from "./DatabaseGroupSelector.jsx";
 import Permissions from "./Permissions.jsx";
 
 
-const OPTION = {
-    UNRESTRICTED: "UNRESTRICTED",
-    ALL_SCHEMAS: "ALL_SCHEMAS",
-    SOME_SCHEMAS: "SOME_SCHEMAS",
-    NO_ACCESS: "NO_ACCESS"
-};
-
 // ------------------------------------------------------------ Permissions Slider ------------------------------------------------------------
 
 function PermissionsSliderChoice({ title, description, selected, onClick }) {
@@ -39,16 +32,16 @@ function PermissionsSlider({ selectedOption, onClickOption }) {
             </h3>
             <div className="flex flex-full full-width">
                 <PermissionsSliderChoice title="Unrestricted" description="All schemas and SQL editor"
-                                         selected={selectedOption === OPTION.UNRESTRICTED} onClick={onClickOption.bind(null, OPTION.UNRESTRICTED)}
+                                         selected={selectedOption === "unrestricted"} onClick={onClickOption.bind(null, "unrestricted")}
                 />
                 <PermissionsSliderChoice title="All schemas" description="But no SQL editor"
-                                         selected={selectedOption === OPTION.ALL_SCHEMAS} onClick={onClickOption.bind(null, OPTION.ALL_SCHEMAS)}
+                                         selected={selectedOption === "all_schemas"} onClick={onClickOption.bind(null, "all_schemas")}
                 />
                 <PermissionsSliderChoice title="Some schemas" description="Only the ones you specify"
-                                         selected={selectedOption === OPTION.SOME_SCHEMAS} onClick={onClickOption.bind(null, OPTION.SOME_SCHEMAS)}
+                                         selected={selectedOption === "some_schemas"} onClick={onClickOption.bind(null, "some_schemas")}
                 />
                 <PermissionsSliderChoice title="No access" description="No schemas for you!"
-                                         selected={selectedOption === OPTION.NO_ACCESS} onClick={onClickOption.bind(null, OPTION.NO_ACCESS)}
+                                         selected={selectedOption === "no_access"} onClick={onClickOption.bind(null, "no_access")}
                 />
             </div>
         </div>
@@ -65,7 +58,8 @@ function SchemasTableRow({ schema }) {
                 {schema.name}
             </td>
             <td>
-                {schema.access}
+                {schema.access_type === "all_tables" ? "All tables" :
+                 schema.access_type === "some_tables" ? "Some tables" : "No access"}
             </td>
         </tr>
     );
@@ -100,15 +94,10 @@ export default class DatabaseGroupDetails extends Component {
         const nativeQueryPerms = perms.native_query_write_access;
         const unrestrictedSchemaPerms = perms.unrestricted_schema_access;
 
-        const permsOption = (nativeQueryPerms && unrestrictedSchemaPerms) ? OPTION.UNRESTRICTED :
-                            unrestrictedSchemaPerms                       ? OPTION.ALL_SCHEMAS  :
-                            (perms.schemas && perms.schemas.length)       ? OPTION.SOME_SCHEMAS :
-                                                                            OPTION.NO_ACCESS;     // TODO - only count schemas where schema.access !== null
-
         return (
             <Permissions leftNavPane={<DatabasesLeftNavPane databases={databases} currentPath={pathname} />}>
                 <DatabaseGroupSelector groups={groups} selectedGroupID={perms.group_id} databaseID={perms.database_id} />
-                <PermissionsSlider selectedOption={permsOption} onClickOption={this.onClickOption.bind(this)} />
+                <PermissionsSlider selectedOption={perms.access_type} onClickOption={this.onClickOption.bind(this)} />
                 <SchemasTable schemas={perms.schemas} />
             </Permissions>
         );
