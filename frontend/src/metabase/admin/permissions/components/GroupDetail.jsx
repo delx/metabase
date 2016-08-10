@@ -21,8 +21,24 @@ const PermissionsAPI = new AngularResourceProxy("Permissions", ["addUserToGroup"
 
 // ------------------------------------------------------------ Title & Nav ------------------------------------------------------------
 
-function Title({ group, addUserVisible, onAddUsersClicked }) {
+function TitleForDefault() {
     return (
+        <section className="PageHeader clearfix">
+            <h2 className="PageTitle">
+                Default Group
+            </h2>
+            <p>
+                All users belong to the Default Group and can't be removed from it. Setting permissions for this group is a great way to
+                make sure you know what new Metabase users will be able to see.
+            </p>
+        </section>
+    );
+}
+
+function Title({ group, addUserVisible, onAddUsersClicked }) {
+    return group.name === "Default" ? (
+        <TitleForDefault />
+    ) : (
         <section className="PageHeader clearfix">
             <button className={cx("Button float-right", {"Button--primary": !addUserVisible})} disabled={addUserVisible} onClick={onAddUsersClicked}>
                 Add members
@@ -124,19 +140,21 @@ function AddUserRow({ suggestions, text, selectedUser, onCancel, onDone, onDownP
 
 // ------------------------------------------------------------ Users Table ------------------------------------------------------------
 
-function UserRow({ user, onRemoveUserClicked }) {
+function UserRow({ user, showRemoveButton, onRemoveUserClicked }) {
     return (
         <tr>
             <td>{user.first_name + " " + user.last_name}</td>
             <td>{user.email}</td>
-            <td className="text-right cursor-pointer" onClick={onRemoveUserClicked.bind(null, user)}>
-                <Icon name="close" className="text-grey-1" size={16} />
-            </td>
+            {showRemoveButton ? (
+                 <td className="text-right cursor-pointer" onClick={onRemoveUserClicked.bind(null, user)}>
+                     <Icon name="close" className="text-grey-1" size={16} />
+                 </td>
+            ) : null}
         </tr>
     );
 }
 
-function MembersTable({ members, userSuggestions, showAddUser, text, selectedUser, onAddUserCancel, onAddUserDone, onAddUserTextChange,
+function MembersTable({ group, members, userSuggestions, showAddUser, text, selectedUser, onAddUserCancel, onAddUserDone, onAddUserTextChange,
                         onUserSuggestionAccepted, onAddUserUpPressed, onAddUserDownPressed, onRemoveUserClicked }) {
 
     return (
@@ -149,7 +167,7 @@ function MembersTable({ members, userSuggestions, showAddUser, text, selectedUse
                      />
                  ) : null}
                 {members && members.map((user, index) =>
-                    <UserRow key={index} user={user} onRemoveUserClicked={onRemoveUserClicked} />
+                    <UserRow key={index} user={user} showRemoveButton={group.name !== "Default"} onRemoveUserClicked={onRemoveUserClicked} />
                 )}
             </AdminContentTable>
         </div>
@@ -357,7 +375,7 @@ export default class GroupDetail extends Component {
                 <Title group={group} addUserVisible={this.state.addUserVisible}
                        onAddUsersClicked={this.onAddUsersClicked.bind(this)}
                 />
-                <MembersTable members={members} userSuggestions={userSuggestions} showAddUser={this.state.addUserVisible} text={this.state.text} selectedUser={this.state.selectedUser}
+                <MembersTable group={group} members={members} userSuggestions={userSuggestions} showAddUser={this.state.addUserVisible} text={this.state.text} selectedUser={this.state.selectedUser}
                               onAddUserCancel={this.onAddUserCanceled.bind(this)}
                               onAddUserDone={this.onAddUserDone.bind(this)}
                               onAddUserTextChange={this.onAddUserTextChange.bind(this)}
