@@ -1,8 +1,11 @@
 import React, { Component } from "react";
+import { Link } from "react-router";
 
 import cx from 'classnames';
 
 import { AngularResourceProxy } from "metabase/lib/redux";
+
+import CheckBox from 'metabase/components/CheckBox.jsx';
 
 import AdminContentTable from "./AdminContentTable.jsx";
 import DatabasesLeftNavPane from "./DatabasesLeftNavPane.jsx";
@@ -55,26 +58,39 @@ function PermissionsSlider({ selectedOption, onClickOption }) {
 
 // ------------------------------------------------------------ Schemas Table ------------------------------------------------------------
 
-function SchemasTableRow({ schema }) {
+function SchemasTableRow({ perms, schema, editable, onSchemaToggled }) {
     return (
         <tr>
             <td>
+                {editable ? (
+                     <CheckBox className="inline-block mr2" checked={schema.access_type !== "no_access"} onChange={onSchemaToggled.bind(null, schema)}/>
+                 ) : null}
                 {schema.name}
             </td>
             <td>
                 {schema.access_type === "all_tables" ? "All tables" :
                  schema.access_type === "some_tables" ? "Some tables" : "No access"}
             </td>
+            <td>
+                {editable ? (
+                     <Link to={"/admin/permissions/databases/" + perms.database_id + "/groups/" + perms.group_id + "/schema/" + schema.name}
+                           className="link text-bold no-decoraction"
+                     >
+                         Edit
+                     </Link>
+                 ) : null}
+            </td>
         </tr>
     );
 }
 
-function SchemasTable({ schemas }) {
+function SchemasTable({ perms, schemas, editable, onSchemaToggled }) {
     console.log("schemas:", schemas); // NOCOMMIT
+    console.log("editable:", editable); // NOCOMMIT
     return (
         <AdminContentTable columnTitles={["Accessible schemas", "Table permissions"]}>
             {schemas && schemas.map((schema, index) =>
-                <SchemasTableRow key={index} schema={schema} />
+                <SchemasTableRow perms={perms} key={index} schema={schema} editable={editable} onSchemaToggled={onSchemaToggled} />
              )}
         </AdminContentTable>
     );
@@ -105,6 +121,10 @@ export default class DatabaseGroupDetails extends Component {
         });
     }
 
+    onSchemaToggled(schema) {
+        console.log("onSchemaToggled(", schema, ")"); // NOCOMMIT
+    }
+
     render() {
         let { location: { pathname }, databases, databasePermissions, groups } = this.props;
 
@@ -118,7 +138,7 @@ export default class DatabaseGroupDetails extends Component {
             <Permissions leftNavPane={<DatabasesLeftNavPane databases={databases} currentPath={pathname} />}>
                 <DatabaseGroupSelector groups={groups} selectedGroupID={perms.group_id} databaseID={perms.database_id} />
                 <PermissionsSlider selectedOption={perms.access_type} onClickOption={this.onClickOption.bind(this)} />
-                <SchemasTable schemas={perms.schemas} />
+                <SchemasTable perms={perms} schemas={perms.schemas} editable={perms.access_type === "some_schemas"} onSchemaToggled={this.onSchemaToggled.bind(this)} />
             </Permissions>
         );
     }
