@@ -340,13 +340,22 @@
   "Param must be an array of integers (this does *not* cast the param)."
   [symb value :nillable]
   (checkp-with vector? symb value "value must be an array.")
-  (mapv (fn [v] (checkp-with integer? symb v "array value must be an integer.")) value))
+  (doseq [v value]
+    (checkp-with integer? symb v "array value must be an integer.")))
+
+(defannotation ArrayOfStrings
+  "Param must be an array of strings (this does *not* cast the param)."
+  [symb value :nillable]
+  (checkp-with vector? symb value "value must be an array.")
+  (doseq [v value]
+    (checkp-with string? symb v "array value must be a string.")))
 
 (defannotation ArrayOfMaps
   "Param must be an array of maps (this does *not* cast the param)."
   [symb value :nillable]
   (checkp-with vector? symb value "value must be an array.")
-  (mapv (fn [v] (checkp-with map? symb v "array value must be a map.")) value))
+  (doseq [v value]
+    (checkp-with map? symb v "array value must be a map.")))
 
 (defannotation NonEmptyString
   "Param must be a non-empty string (strings that only contain whitespace are considered empty)."

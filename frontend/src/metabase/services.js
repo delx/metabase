@@ -610,6 +610,14 @@ CoreServices.factory('Permissions', ['$resource', function($resource) {
                 id: '@id'
             },
             isArray: true
+        },
+        updateDatabasePermissions: {
+            method: 'POST',
+            url: '/api/permissions/database/:databaseID/group/:groupID',
+            params: {
+                databaseID: '@databaseID',
+                groupID: '@groupID'
+            }
         }
     });
 }]);

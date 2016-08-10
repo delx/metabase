@@ -90,16 +90,12 @@
 (defn- access-type [db-perms]
   (cond
     (and (:unrestricted_schema_access db-perms)
-         (:native_query_write_acecss db-perms)) :unrestricted
+         (:native_query_write_access db-perms)) :unrestricted
     (:unrestricted_schema_access db-perms)      :all_schemas
     (nil? db-perms)                             :no_access
     :else                                       :some_schemas))
 
-;; TODO - need to include tables
-(defendpoint GET "/database/:database-id/group/:group-id"
-  "Get details about the permissions for a specific Group for a specific Database."
-  [database-id group-id]
-  (check-superuser)
+(defn- group-permissions-for-db [database-id group-id]
   (let [db-perms           (db/select-one 'DatabasePermissions
                              :database_id database-id
                              :group_id    group-id)
@@ -123,6 +119,39 @@
                                       (:unrestricted_schema_access db-perms) :all_tables
                                       schema-perms                           :some_tables
                                       :else                                  :no_access))))))
+
+;; TODO - need to include tables
+(defendpoint GET "/database/:database-id/group/:group-id"
+  "Get details about the permissions for a specific Group for a specific Database."
+  [database-id group-id]
+  (check-superuser)
+  (group-permissions-for-db database-id group-id))
+
+(defendpoint POST "/database/:database-id/group/:group-id"
+  "Change permissions settings for a specific Group & specific Database."
+  [database-id group-id :as {{:keys [access_type schemas]} :body}]
+  {access_type [Required NonEmptyString]
+   schemas     ArrayOfStrings}
+  (check (contains? #{"unrestricted" "all_schemas" "some_schemas" "no_access"} access_type)
+    400 "Invalid access type.")
+  (if (= access_type "no_access")
+    (db/delete! 'DatabasePermissions
+      :database_id database-id
+      :group_id    group-id)
+    (let [database-permissions (or (db/select-one 'DatabasePermissions :database_id database-id, :group_id group-id)
+                                   (db/insert! 'DatabasePermissions :database_id database-id, :group_id group-id))]
+      ;; TODO - update SchemaPermissions as appropriate
+      (case access_type
+        "unrestricted" (db/update! 'DatabasePermissions (:id database-permissions)
+                         :unrestricted_schema_access true
+                         :native_query_write_access  true)
+        "all_schemas"  (db/update! 'DatabasePermissions (:id database-permissions)
+                         :unrestricted_schema_access true
+                         :native_query_write_access  false)
+        "some_schemas" (db/update! 'DatabasePermissions (:id database-permissions)
+                         :unrestricted_schema_access false
+                         :native_query_write_access  false))))
+  (group-permissions-for-db database-id group-id))
 
 
 (define-routes)

@@ -2,10 +2,14 @@ import React, { Component } from "react";
 
 import cx from 'classnames';
 
+import { AngularResourceProxy } from "metabase/lib/redux";
+
 import AdminContentTable from "./AdminContentTable.jsx";
 import DatabasesLeftNavPane from "./DatabasesLeftNavPane.jsx";
 import DatabaseGroupSelector from "./DatabaseGroupSelector.jsx";
 import Permissions from "./Permissions.jsx";
+
+const PermissionsAPI = new AngularResourceProxy("Permissions", ["updateDatabasePermissions"]);
 
 
 // ------------------------------------------------------------ Permissions Slider ------------------------------------------------------------
@@ -80,15 +84,31 @@ function SchemasTable({ schemas }) {
 // ------------------------------------------------------------ Logic ------------------------------------------------------------
 
 export default class DatabaseGroupDetails extends Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            databasePermissions: null
+        };
+    }
 
     onClickOption(newOption) {
         console.log("onClickOption(", newOption, ")"); // NOCOMMIT
+
+        const perms = this.props.databasePermissions;
+
+        PermissionsAPI.updateDatabasePermissions({groupID: perms.group_id, databaseID: perms.database_id, access_type: newOption}).then((function(newPerms) {
+            this.setState({
+                databasePermissions: newPerms
+            });
+        }).bind(this), function(error) {
+            console.error("Error updating database permissions:", error);
+        });
     }
 
     render() {
         let { location: { pathname }, databases, databasePermissions, groups } = this.props;
 
-        const perms = databasePermissions || {};
+        const perms = this.state.databasePermissions || databasePermissions || {};
         console.log("perms:", perms); // NOCOMMIT
 
         const nativeQueryPerms = perms.native_query_write_access;
